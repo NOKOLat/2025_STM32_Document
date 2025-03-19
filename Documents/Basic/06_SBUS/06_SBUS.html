@@ -100,8 +100,17 @@
 
         <p>SBUSの受信にはUSART1を使うのでUSART1のRXとTXも割り当てておこう</p>
 
-        <h2>割り込みの設定</h2>
-        <p>前回と同じようにUSART2のRXにDMAを割り当てておこう </p>
+        <h2>ピンの設定</h2>
+
+        <p>SBUSは少し特殊な通信形式であるのでUSART1の詳細設定を変更する必要がある</p>
+
+        <p>DMAの設定と同じところにあるので、USART1のDMAと一緒に設定をしておこう</p>
+
+        <h3>USART1の詳細設定</h3>
+        <img src="Config_1.png">
+        
+        <h3>USART1のDMA</h3>
+        <img src="Config_2.png">
 
         <h2>回路</h2>
 
@@ -130,21 +139,26 @@
 uint8_t  receive_buffer[25];
 uint16_t sbus_data[10] = {};
 
+void SBUS_decode();
+
+std::string str;
+
 void init(){
 
     //割り込みの開始
-    HAL_UART_Receive_DMA(&huart3, receive_buffer, 25);
-}     
+    HAL_UART_Receive_DMA(&huart1, receive_buffer, 25);
+}
 
 void loop(){
-    
+
     //受信したデータをPCに送信
     for(int i = 0; i < 10; i++){
 
-        std::string str = std::to_string(sbus_data[i]) + " ";
+        str = std::to_string(sbus_data[i]) + " ";
 	    HAL_UART_Transmit(&huart2, (uint8_t *)str.c_str(),str.length(),100);
     }
 
+    //改行を送信
     str = "\n";
 	HAL_UART_Transmit(&huart2, (uint8_t *)str.c_str(),str.length(),100);
 
@@ -160,7 +174,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
     }
 
     //受信の再開
-    HAL_UART_Receive_DMA(&huart3, receive_buffer, 25);
+    HAL_UART_Receive_DMA(&huart1, receive_buffer, 25);
 }
 
 //SBUSからデータを取り出すプログラム
