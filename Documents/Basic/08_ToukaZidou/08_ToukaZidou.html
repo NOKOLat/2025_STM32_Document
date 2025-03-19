@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STM32_SBUS</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        header, footer {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        h1 {
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 10px;
+        }
+        h2 {
+            border-left: 5px solid #2c3e50;
+            padding-left: 10px;
+        }
+        .note {
+            background-color: #e6ffed;
+            border-left: 5px solid #2cbe4e;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            border: 2px solid #2c3e50;
+        }
+        table, th, td {
+            border: 1px solid #2c3e50;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        details {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border: 2px solid #2c3e50;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        summary {
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        
+        <h3>STM32資料 基礎編 8</h3>
+        <h1>投下装置を自動化してみよう</h1>
+
+        <p>前回作った投下装置は、頑張って飛ばしながら投下のスイッチを入れなくてはならなかった</p>
+        <p>実際の大会では、投下する箱の中に赤外線投光器が入っているので、赤外線を検知することで投下の自動化ができる</p>
+
+        <h2>今回やること</h2>
+        <p>今回は、これから示す機能を持つコードと回路を作ってみよう</p>
+        <p>ヒントも載せているので、困ったら前の資料やヒントを見て作ってみよう</p>
+        <div class="note">
+            <h3>投下装置</h3>
+            <ul>
+                <li>一定以上の赤外線を検知すると自動で投下装置が作動する</li>
+                <li>5chのスイッチで自動投下のオンオフを切り替えることができる</li>
+                <li>いつでも6chの手動投下はできる状態にする</li>
+            </ul>
+        </div>
+
+        <h2>ヒント</h2>
+
+        <p>わからないところがあったら、その項目を開いてヒントを確認してみてね</p>
+
+        <details>
+            <summary>ピン設定</summary>
+
+            <p>細かい機能はプログラムで実装できるので、赤外線を検知の部分を追加しよう</p>
+
+            <p>ピンは使ったことがあるものを選んでいるだけなので、違う番号でも大丈夫！</p>
+
+            <div class="note">
+                <ul>
+                    <li>ADCのためのピン・・・ADC IN0</li>
+                </ul>
+            </div>
+    
+        </details> 
+
+
+        <details>
+
+            <summary>回路</summary>
+            
+            <p>今回新しく追加するAD変換の回路を追加しよう（資料5を見てね）</p>
+    
+        </details> 
+
+        <details>
+            <summary>プログラム</summary>
+
+            <p>今回は、6チャンネルのスイッチが押されているときか</p>
+            <p>5チャンネルのスイッチが押されている時に、赤外線を検知した時にサーボを動かせばよい</p>
+
+            <p>if文は "||" でOR、"&&"でANDとすることができるので、条件を頑張って作ってみよう</p>
+
+            <pre><code class="language-cpp">//6chのスイッチがON or スイッチがONかつADCの値が一定以上である時
+if(sbus_data[6] > 1000 || (sbus_data[5] && ADC_Value > 2000)){
+    
+    //サーボを開く
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1, 1500);         
+}
+//OFFのとき
+else{
+
+    //サーボを閉じる
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1, 500);         
+}</code></pre>
+                
+            </code></pre>
+    
+        </details> 
+
+        <h2>終わりに</h2>
+
+        <P>これで基礎編は終わりです！</P>
+        <p>がんばったねおつかれさま！</p>
+
+        <h2>リンク</h2>
+        <a href= "https://aoi-256.github.io/STM32_DEV/"><h3>・メインページ</h3></a>
+        <a href= "https://aoi-256.github.io/STM32_DEV/Documents/Basic/07_Touka/07_Touka.html" ><h3>・前のページ</h3></a>
+        <a href= "https://aoi-256.github.io/STM32_DEV/Documents/Advance/01_I2C/01_I2C" ><h3>・次のページ</h3></a>
+        
+    </main>
+
+    <footer>
+        <p>&copy; 2025 東京農工大学 航空研究会</p>
+    </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-cpp.min.js"></script>
+</body>
+</html>

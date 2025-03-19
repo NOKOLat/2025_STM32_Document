@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STM32_Install</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        header, footer {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        h1 {
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 10px;
+        }
+        h2 {
+            border-left: 5px solid #2c3e50;
+            padding-left: 10px;
+        }
+        .note {
+            background-color: #e6ffed;
+            border-left: 5px solid #2cbe4e;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            border: 2px solid #2c3e50;
+        }
+        table, th, td {
+            border: 1px solid #2c3e50;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        details {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border: 2px solid #2c3e50;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        summary {
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <h3>STM32資料 導入編 3</h3>
+        <h1>C++の基礎を学んでみよう</h1>
+
+        <p>STM32では、C++という言語を使ってプログラムを書きます</p>
+        <p>すべての機能を知っている必要はないが、『関数』と『ポインタ』という重要な概念を説明します</p>
+
+        <h2>関数とは</h2>
+
+        <p>関数の概念を説明するために、ここでは部屋の電気をつけてくれるロボットを考えてみよう</p>
+
+        <h3>関数のイメージ</h3>
+
+        <p>電気のスイッチを押してくれるロボットがいるとする</p>
+
+        このロボットに<strong>『どの電気』を『付けるか消すか』</strong>を伝えることで
+
+        <p>ロボットがスイッチの位置まで移動して電気を付けたり消したりしてくれる</p>
+
+        <p>関数はこのロボットのように、<strong>必要な情報</strong>を伝えて<strong>実行するようにお願い</strong>することで様々な処理を実行してくれるものである</p>
+
+        <p>またロボットによっては、無事に付けることができたかを報告する機能を持っているものもある</p>
+
+        <h3>関数の定義</h3>
+
+        <p>今のロボットをC++のプログラムにするとこのように書くことができる</p>
+        
+        <pre><code class="language-cpp">void Switch(int Place, int Status){
+
+    //ロボットが電気のスイッチを押す処理を書く
+}</code></pre>
+
+        <table border="1">
+            <tr>
+            <th>ロボットの機能</th>
+            <th>プログラムの文章</th>
+            </tr>
+
+            <tr>
+                <td>void</td>
+                <td>スイッチを付けたかを報告するか(voidの場合はなし）</td>
+            </tr>
+
+            <tr>
+                <td>Switch</td>
+                <td>関数の名前(他の名前と被らなけばなんでも使える)</td>
+                </tr>
+
+            <tr>
+                <td>int Place</td>
+                <td>付ける電気の場所 (電気の場所に番号を割り当ててその番号を入力)</td>
+            </tr>
+            
+            <tr>
+                <td>int Status</td>
+                <td>電気を付けるか消すか (0なら消す、1なら付ける)</td>
+            </tr>
+
+        </table>
+
+        <h3>関数の使い方</h3>
+        
+        <p>関数はこのように使うことができる</p>
+
+        <p>関数を使うことで、ロボットの中身の処理を知らなくても、場所と電気を付けるか消すかを決めるだけで動かすことができる</p>
+
+        <p>STM32では、色々な難しい処理が関数を使うことで簡単に実行できるようになっている</p>
+
+        <pre><code class="language-cpp">int main(void){
+
+//場所1の電気をつける(1)
+Switch(1, 1);
+
+//場所2の電気をけす(0)
+Switch(2, 0);
+
+}</code></pre>
+
+        <h2>ポインタとは</h2>
+
+        <p>表を使ってアドレスを示して教えてあげればよさそう</p>
+
+
+        <h2>終わりに</h2>
+        <p>果たしてこの説明でわかるのだろうか、、、</p>
+
+        <h2>リンク</h2>
+        <a href= "https://aoi-256.github.io/STM32_DEV/"><h3>・メインページ</h3></a>
+
+    </main>
+    <footer>
+        <p>&copy; 2025 東京農工大学 航空研究会</p>
+    </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-cpp.min.js"></script>
+</body>
+</html>

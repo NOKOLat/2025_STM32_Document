@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STM32_ADC</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        header, footer {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        h1 {
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 10px;
+        }
+        h2 {
+            border-left: 5px solid #2c3e50;
+            padding-left: 10px;
+        }
+        .note {
+            background-color: #e6ffed;
+            border-left: 5px solid #2cbe4e;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            border: 2px solid #2c3e50;
+        }
+        table, th, td {
+            border: 1px solid #2c3e50;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        details {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border: 2px solid #2c3e50;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        summary {
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        
+        <h3>STM32資料 基礎編 5</h3>
+        <h1>赤外線を検出してみよう</h1>
+        <p>赤外線は目には見えないが、制御や誘導などで非常に便利である</p>
+        <p>そこで今回は、フォトトランジスタとAD変換という手法を使って赤外線を検出してみよう</p>
+
+        <h2>今回やること</h2>
+        <div class="note">
+            <h3>作業の流れ</h3>
+            <ul>
+                <li>ピンを割り当てる</li>
+                <li>wrapper.cppにコードを書き込む</li>
+                <li>フォトトランジスタとSTM32を配線でつなぐ</li>
+                <li>STM32にプログラムを書き込み実行する</li>
+            </ul>
+        </div>
+
+        <h2>ピンの割り当て</h2>
+        <p>今回はADCという機能を使います</p>
+        <p>(プロジェクト名).iocからPA0を選択し、ADC1_IN0を割り当てよう</p>  
+        
+        <p>左側のAnalogからADC1を選択し、IN0にチェックを入れよう</p>
+
+        <img src="Pin.png">
+
+        <h2>回路</h2>
+
+        <p>フォトトランジスタとSTM32をジャンパー線を使ってつなぐ</p>
+
+        <p>回路が少し複雑なので、気を付けてつけてね</p>
+
+        <h3>配線図</h3>
+
+        <p>フォトトランジスタと10kΩの抵抗を使ってね</p>
+        
+        <img src="Circuit.png">
+        
+        <h2>プログラム</h2>
+
+        <p>今回はADCのスタートと変換待機と読み取りの3つの関数を使います</p>
+
+        <h3>ADCのスタート</h3>
+        <p>指定したADCを起動するための関数</p>
+        <pre><code class="language-cpp">HAL_ADC_Start(&hadc1);</code></pre>
+
+        <div class="note">
+            <h3>この関数の引数</h3>
+            <ul>
+                <li>&hadc1 <br> 使用するADCの種類・・・TIM1を使用</li>
+            </ul>
+        </div>   
+
+        <h3>AD変換の待機</h3>
+        <p>指定したADCを起動するための関数</p>
+        <pre><code class="language-cpp">HAL_ADC_PollForConversion(&hadc1, time)</code></pre>
+
+        <div class="note">
+            <h3>この関数の引数</h3>
+            <ul>
+                <li>&hadc1 <br> 使用するADCの種類・・・TIM1を使用</li>
+                <li>time <br> 最大の待機時間（ミリ秒）</li>
+            </ul>
+        </div>  
+
+        <h3>値の読み取り</h3>
+        <p>変換した値を読み取るための関数</p>
+        <pre><code class="language-cpp">Value = HAL_ADC_GetValue(&hadc1);</code></pre>
+
+        <div class="note">
+            <h3>この関数の引数</h3>
+            <ul>
+                <li>Value <br> 変換した値を出力する変数(16桁の符号なし整数)</li>
+                <li>&hadc1 <br> 使用するADCの種類・・・TIM1を使用</li>
+            </ul>
+        </div>  
+
+        <details>
+            <summary>ADCを止める関数</summary>
+
+            <p>今回は使用しないが、一応紹介しておく</p>
+        
+            <pre><code class="language-cpp">HAL_ADC_Stop(&hadc1);</code></pre>
+
+            <p>引数はスタートの関数と同じなので頭の片隅においておくといいかも?</p>
+
+        </details>  
+
+
+        <h2>サンプルコード</h2>
+        <p>実際にAD変換を行い、その値をシリアル通信で送信するプログラムを作成した</p>
+        <p>蛍光灯や日光にあてて値の変化を読み取ってみよう</p>
+        <pre><code class="language-cpp">#include "wrapper.hpp"
+#include "adc.h"
+#include "usart.h"
+#include "string"
+
+uint16_t ADC_Value = 0;
+
+void init(){
+    
+    //ADCのスタート
+    HAL_ADC_Start(&hadc1);
+    HAL_Delay(500);     
+}
+        
+void loop(){
+    
+    //変換を待機
+    if(HAL_ADC_PollForConversion(&hadc1, 1000) == HAL_OK ){
+
+        //値の読み取り
+        ADC_Value = HAL_ADC_GetValue(&hadc1);
+
+        //値の送信
+        std::string str = "ADC_Value:" + std::to_string(ADC_Valu) + "\n";
+        HAL_UART_Transmit(&huart2, (uint8_t *)str.c_str(),str.length(),100);
+    }
+
+    //ちょっと待機
+    HAL_Delay(100)
+}</code></pre>
+
+        <h2>終わりに</h2>
+        <p>今回は、AD変換を使って赤外線を読み取ってみた</p>
+        <p>色々な場面で使えるので、ぜひ覚えておこう</p>
+
+        <h2>リンク</h2>
+        <a href= "https://aoi-256.github.io/STM32_DEV/"><h3>・メインページ</h3></a>
+        <a href= "https://aoi-256.github.io/STM32_DEV/Documents/Basic/04_PWM/04_PWM.html" ><h3>・前のページ</h3></a>
+        <a href= "https://aoi-256.github.io/STM32_DEV/Documents/Basic/06_SBUS/06_SBUS.html" ><h3>・次のページ</h3></a>
+
+    </main>
+    <footer>
+        <p>&copy; 2025 東京農工大学 航空研究会</p>
+    </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-cpp.min.js"></script>
+</body>
+</html>
