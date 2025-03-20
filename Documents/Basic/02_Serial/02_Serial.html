@@ -106,15 +106,45 @@
         <p>ここでは指定したデータを送信する関数を紹介する</p>
     
         <h3>関数</h3>
-        <pre><code class="language-cpp">HAL_UART_Transmit(&huart2, data, len, time);</code></pre>
+        <pre><code class="language-cpp">HAL_UART_Transmit(&huartx, Data, Len, Time);</code></pre>
         <div class="note">
             <h3>この関数の引数</h3>
-            <ul>
-                <li>&huart2 <br> 使用するUSARTの種類 今回はUSART2を使っているので&huart2とする</li>
-                <li>data <br> 送信するデータを指定する</li>
-                <li>len <br> 送信するデータの長さを指定する</li>
-                <li>time <br> 通信の最大時間(ミリ秒) この時間以内に終わらなかった場合諦める</li>
-            </ul>
+
+            <p>1つ目の<strong>UART_HandleTypeDef*</strong>はHALライブラリで定義されているので</p>
+
+            <p>難しいことを考えないで使ってね</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>引数名</th>
+                        <th>変数型</th>
+                        <th>内容</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>&huartx</th>
+                        <th>UART_HandleTypeDef*</th>
+                        <th>UARTのポインタ（xはUARTの番号）</th>
+                    </tr>
+                    <tr>
+                        <th>Data</th>
+                        <th>uint8_t*</th>
+                        <th>送信するデータのポインタ</th>
+                    </tr>
+                    <tr>
+                        <th>Len</th>
+                        <th>uint16_t</th>
+                        <th>送信するデータ長</th>
+                    </tr>
+                    <tr>
+                        <th>Time</th>
+                        <th>uint32_t</th>
+                        <th>最大実行時間（超えたら処理を諦める）</th>
+                    </tr>
+                </tbody>
+            </table>
         </div>   
         <details>
             <summary>受信のお話(次回の導入?)</summary>
@@ -122,7 +152,7 @@
             <ul>
                 <li><strong> データを受信する関数</strong>
                     <p></p>
-                    <pre><code class="language-cpp">HAL_UART_Receive(&huart2, data, len, time);</code></pre>
+                    <pre><code class="language-cpp">HAL_UART_Receive(&huartx, Data, Len, Time);</code></pre>
                     <p>受信したデータを入れる変数をdataに入れる 他の引数は送信と同じなので覚えておこう！</p>
                     <p>この関数が実行されている時に来たデータしか受信できないので、プログラムによっては取りこぼしてしまうことがある</p>
                     <p>受信のお話は次の資料で詳しく解説します!</p>

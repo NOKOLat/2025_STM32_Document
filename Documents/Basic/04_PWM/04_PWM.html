@@ -123,10 +123,9 @@
             <br>
             <ul>
                 <li><strong>タイマー設定</strong>
-                    <p>サーボモーターは、パルス信号（周期的にオン・オフが切り替わる）の周期で角度を指定している</p>
+                    <p>サーボモーターは、決まった周期で送られてくるパルス信号のオンとオフの比率（デューティ比）によって角度を決めている</p>
                     <p>この設定をすることで、STM32のクロックをサーボモーターに送りたい周期に変換している</p>
-                    <p>詳細な話は難しいので、気になる人はこのページを読んでみるといいかも？</p>
-                    https://qiita.com/ShunHattori/items/68f099f1d77702d2535d
+                    <p>ここで周期を決め、後で紹介する関数でデューティ比を変更している/p>
             </ul>
         </details>   
     
@@ -136,7 +135,7 @@
         <p>サーボモーターとSTM32をジャンパー線を使ってつなぐ</p>
 
         <p><strong>配線を間違えるとサーボモーターが壊れてしまうことがあるので気を付けてください</strong></p>
-        <p><strong>真ん中の5Vだけは絶対に間違えないようにしよう！</strong></p>
+        <p><strong>真ん中の5Vだけは絶対に間違えないようにしよう!</strong></p>
 
         <h3>配線図</h3>
         <table>
@@ -175,27 +174,65 @@
 
         <h3>TIMのスタート</h3>
         <p>指定したタイマーを起動するための関数</p>
-        <pre><code class="language-cpp">HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);</code></pre>
+        <pre><code class="language-cpp">HAL_TIM_PWM_Start(&htimx, TIM_CHANNEL_y);</code></pre>
 
         <div class="note">
             <h3>この関数の引数</h3>
-            <ul>
-                <li>&htim1 <br> 使用するTIMの種類・・・TIM1を使用</li>
-                <li>TIM_CHANNEL_1 <br>使用するTIMのチャンネル・・・CH1を使用</li>
-            </ul>
+            <table>
+                <thead>
+                    <tr>
+                        <th>引数名</th>
+                        <th>変数型</th>
+                        <th>内容</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>&htimx</th>
+                        <th>TIM_HandleTypeDef*</th>
+                        <th>TIMのポインタ（xはTIMの番号）</th>
+                    </tr>
+                    <tr>
+                        <th>TIM_CHANNEL_y</th>
+                        <th>uint32_t</th>
+                        <th>yはChannelの番号 </th>
+                    </tr>
+                </tbody>
+            </table>
         </div>   
 
         <h3>TIMの設定</h3>
         <p>起動したタイマーの値を設定するための関数</p>
-        <pre><code class="language-cpp">__HAL_TIM_SET_COMPARE(&htim1 , TIM_CHANNEL_1, Value);</code></pre>
+        <pre><code class="language-cpp">__HAL_TIM_SET_COMPARE(&htimx , TIM_CHANNEL_y, Value);</code></pre>
 
         <div class="note">
             <h3>この関数の引数</h3>
-            <ul>
-                <li>&htim1 <br> 使用するTIMの種類・・・TIM1を使用</li>
-                <li>TIM_CHANNEL_1 <br>使用するTIMのチャンネル・・・CH1を使用</li>
-                <li>Value <br>設定したい値(0~65535),</li>
-            </ul>
+            <table>
+                <thead>
+                    <tr>
+                        <th>引数名</th>
+                        <th>変数型</th>
+                        <th>内容</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>&htimx</th>
+                        <th>TIM_HandleTypeDef*</th>
+                        <th>TIMのポインタ（xはTIMの番号）</th>
+                    </tr>
+                    <tr>
+                        <th>TIM_CHANNEL_y</th>
+                        <th>uint32_t</th>
+                        <th>yはChannelの番号 </th>
+                    </tr>
+                    <tr>
+                        <th>Value</th>
+                        <th>uint16_t</th>
+                        <th>PWMのデューティ比を変更</th>
+                    </tr>
+                </tbody>
+            </table>
         </div> 
 
         <details>
@@ -203,7 +240,7 @@
 
             <p>今回は使用しないが、安全装置などの設計をする上で止める関数が使えるので紹介しておく</p>
         
-            <pre><code class="language-cpp">HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);</code></pre>
+            <pre><code class="language-cpp">HAL_TIM_PWM_Stop(&htimx, TIM_CHANNEL_y);</code></pre>
 
             <p>引数はスタートの関数と同じなので頭の片隅においておくといいかも?</p>
 
@@ -213,6 +250,7 @@
         <h2>サンプルコード</h2>
         <p>実際にサーボモータを回し続けるコードを作成した</p>
         <p>0~2500の好きな値を指定できるので、色々な値を試してみよう</p>
+        <p>(CounterPriodを2500にしたので、0~2500の間で調整することになっている)</p>
         <pre><code class="language-cpp">#include "wrapper.hpp"
 #include "tim.h"
 
@@ -238,6 +276,7 @@ void loop(){
 
         <h2>終わりに</h2>
         <p>今回は、タイマーを使ってサーボモータを動かしてみました</p>
+        <p>ほかのモーターも同じように動かすことができるので、機会があったらやってみてね</p>
 
         <h2>リンク</h2>
         <a href= "https://nokolat.github.io/2025_STM32_Document/"><h3>・メインページ</h3></a>

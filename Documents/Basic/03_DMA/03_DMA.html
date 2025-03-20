@@ -117,12 +117,36 @@
         <pre><code class="language-cpp">HAL_UART_Receive_DMA(&huart2, receive_buffer, len);</code></pre>
 
         <div class="note">
-            <h3>この関数の引数（通常の送信や受信とほとんど同じ）</h3>
-            <ul>
-                <li>&huart2 <br> 使用するUSARTの種類</li>
-                <li>data <br> 送信するデータを指定する</li>
-                <li>len <br> 送信するデータの長さを指定する</li>
-            </ul>
+            <h3>この関数の引数</h3>
+
+            <p>前回扱った送信関数との違いは、最大時間の引数が消えているだけなので同じように使えるよ</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>引数名</th>
+                        <th>変数型</th>
+                        <th>内容</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>&huartx</th>
+                        <th>UART_HandleTypeDef*</th>
+                        <th>UARTのポインタ（xはUARTの番号）</th>
+                    </tr>
+                    <tr>
+                        <th>Data</th>
+                        <th>uint8_t*</th>
+                        <th>受信するデータのポインタ</th>
+                    </tr>
+                    <tr>
+                        <th>Len</th>
+                        <th>uint16_t</th>
+                        <th>受信するデータ長</th>
+                    </tr>
+                </tbody>
+            </table>
         </div>   
 
         <details>

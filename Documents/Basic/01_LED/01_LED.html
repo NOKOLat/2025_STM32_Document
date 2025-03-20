@@ -137,12 +137,25 @@
         <p>タイミングを調整するために、一定時間待機する関数を使う</p>
 
         <h3>関数</h3>
-        <pre><code class="language-cpp">HAL_Delay(TIME);</code></pre>
+        <pre><code class="language-cpp">HAL_Delay(Time);</code></pre>
         <div class="note">
             <h3>この関数の引数</h3>
-            <ul>
-                <li>TIME <br> 待機したい時間（ミリ秒）1~65535までの値を入力できる</li>
-            </ul>
+            <table>
+                <thead>
+                    <tr>
+                        <th>引数名</th>
+                        <th>変数型</th>
+                        <th>内容</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>Time</th>
+                        <th>uint32_t</th>
+                        <th>待機時間（単位はミリ秒）</th>
+                    </tr>
+
+            </table>
         </div>   
 
         <h2>サンプルコード</h2>

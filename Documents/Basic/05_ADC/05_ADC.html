@@ -119,37 +119,97 @@
 
         <h3>ADCのスタート</h3>
         <p>指定したADCを起動するための関数</p>
-        <pre><code class="language-cpp">HAL_ADC_Start(&hadc1);</code></pre>
+        <pre><code class="language-cpp">HAL_ADC_Start(&hadcx);</code></pre>
 
         <div class="note">
             <h3>この関数の引数</h3>
-            <ul>
-                <li>&hadc1 <br> 使用するADCの種類・・・TIM1を使用</li>
-            </ul>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>引数名</th>
+                        <th>変数型</th>
+                        <th>内容</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>&hadcx</th>
+                        <th>ADC_HandleTypeDef*</th>
+                        <th>ADCのポインタ（xはADCの番号）</th>
+                    </tr>
+                </tbody>
+            </table>
         </div>   
 
         <h3>AD変換の待機</h3>
         <p>指定したADCを起動するための関数</p>
-        <pre><code class="language-cpp">HAL_ADC_PollForConversion(&hadc1, time)</code></pre>
+        <pre><code class="language-cpp">HAL_ADC_PollForConversion(&hadcx, Time)</code></pre>
 
         <div class="note">
             <h3>この関数の引数</h3>
-            <ul>
-                <li>&hadc1 <br> 使用するADCの種類・・・TIM1を使用</li>
-                <li>time <br> 最大の待機時間（ミリ秒）</li>
-            </ul>
+            <table>
+                <thead>
+                    <tr>
+                        <th>引数名</th>
+                        <th>変数型</th>
+                        <th>内容</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>&hadcx</th>
+                        <th>ADC_HandleTypeDef*</th>
+                        <th>ADCのポインタ（xはADCの番号）</th>
+                    </tr>
+                    <tr>
+                        <th>Time</th>
+                        <th>uint32_t</th>
+                        <th>待機する最大時間</th>
+                </tbody>
+            </table>
         </div>  
 
         <h3>値の読み取り</h3>
         <p>変換した値を読み取るための関数</p>
-        <pre><code class="language-cpp">Value = HAL_ADC_GetValue(&hadc1);</code></pre>
+        <pre><code class="language-cpp">Value = HAL_ADC_GetValue(&hadcx);</code></pre>
 
         <div class="note">
             <h3>この関数の引数</h3>
-            <ul>
-                <li>Value <br> 変換した値を出力する変数(16桁の符号なし整数)</li>
-                <li>&hadc1 <br> 使用するADCの種類・・・TIM1を使用</li>
-            </ul>
+            <table>
+                <thead>
+                    <tr>
+                        <th>引数名</th>
+                        <th>変数型</th>
+                        <th>内容</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>&hadcx</th>
+                        <th>ADC_HandleTypeDef*</th>
+                        <th>ADCのポインタ（xはADCの番号）</th>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>この関数の戻り値</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>戻り値名</th>
+                        <th>変数型</th>
+                        <th>内容</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>Value</th>
+                        <th>uint16_t</th>
+                        <th>ADCをした値(0~4095)</th>
+                    </tr>
+                </tbody>
+            </table>
         </div>  
 
         <details>
