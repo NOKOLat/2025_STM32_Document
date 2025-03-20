@@ -135,13 +135,13 @@
 if(sbus_data[6] > 1000 || (sbus_data[5] && ADC_Value > 2000)){
     
     //サーボを開く
-    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1, 1500);         
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1, 2000);         
 }
 //OFFのとき
 else{
 
     //サーボを閉じる
-    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1, 500);         
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1, 1000);         
 }</code></pre>
                 
             </code></pre>
