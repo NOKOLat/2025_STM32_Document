@@ -164,7 +164,31 @@
 
         <h3>割り込み受信後の処理</h3>
         <pre><code class="language-cpp">void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)</code></pre>
-        
+
+        <div class="note">
+            <h3>この関数の引数</h3>
+
+            <p>この関数の引数はこちらから変える必要はないので毎回コピペで大丈夫</p>
+            <p>どのUSARTで受信したがが、*huartに入っているのでif文を使って判定することができる</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>引数名</th>
+                        <th>変数型</th>
+                        <th>内容</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>&huart</th>
+                        <th>UART_HandleTypeDef*</th>
+                        <th>UARTのポインタ（xはUARTの番号）</th>
+                    </tr>
+                </tbody>
+            </table>
+        </div>   
+
         <p>この関数は、データを受信したとき（割り込み受信が完了したとき）に自動で呼び出される</p>
         <p>この関数内に受信後の処理（受信したデータを判定など）を書くことで、受信後すぐに処理ができる</p>
 

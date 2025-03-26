@@ -111,14 +111,38 @@
         <p>そこで、電圧を変更する関数について説明する</p>
 
         <h3>関数</h3>
-        <pre><code class="language-cpp">HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5, GPIO_PIN_SET);</code></pre>
+        <pre><code class="language-cpp">HAL_GPIO_WritePin(GPIOx,GPIO_PIN_y, GPIO_PIN_SET);</code></pre>
         <div class="note">
             <h3>この関数の引数</h3>
-            <ul>
-                <li>GPIOA <br> 使用するピンの種類 PA5なのでGPIOAにする</li>
-                <li>GPIO_PIN_5 <br> 使用するピンの番号 PA5なのでGPIO_PIN_5にする</li>
-                <li>GPIO_PIN_SET <br> 電圧を決める SETが3.3v RESETが0.0vになっている</li>
-            </ul>
+
+            <p>GPIOxやGPIO_PIN_yは整数型だけど、システム側で文字に対応するようになってるので</p>
+            <p>GPIOAなどと書くことができる</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>引数名</th>
+                        <th>変数型</th>
+                        <th>内容</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>GPIOx</th>
+                        <th>uint32_t</th>
+                        <th>GPIOの種類(xはGPIOの種類)</th>
+                    </tr>
+                    <tr>
+                        <th>GPIO_PIN_y</th>
+                        <th>uint32_t</th>
+                        <th>ピンの種類（yはピン番号）</th>
+                    </tr>
+                    <tr>
+                        <th>GPIO_PIN_SET</th>
+                        <th>GPIO_PinState</th>
+                        <th>SET: 3.3v RESET: 0.0v</th>
+                    </tr>
+            </table>
         </div>   
         <details>
             <summary>細かいお話</summary>
@@ -154,7 +178,6 @@
                         <th>uint32_t</th>
                         <th>待機時間（単位はミリ秒）</th>
                     </tr>
-
             </table>
         </div>   
 
@@ -163,6 +186,7 @@
         <p>実際に実行してみたり、Delayの時間を変えたりしてみよう</p>
         <pre><code class="language-cpp"></code>#include "wrapper.hpp"
 #include "gpio.h"
+
 //起動時に一度だけ実行される
 void init(){
 
@@ -172,6 +196,7 @@ void init(){
     //1000ms(1s)待機
     HAL_Delay(1000);
 }
+
 //繰り返し実行される            
 void loop(){
                 
@@ -185,8 +210,7 @@ void loop(){
 }</code></pre>
         <h2>終わりに</h2>
         <p>今回はLEDをつけて、開発の流れを体験してもらいました!</p>
-        <p>次回は、1本の通信線を使ったシリアル通信について説明します!</p>
-        <p>(次のページのリンク)</p>
+        <p>次回は、2本の通信線を使ったシリアル通信について説明します!</p>
 
         <h2>リンク</h2>
         <a href= "https://nokolat.github.io/2025_STM32_Document/"><h3>・メインページ</h3></a>
