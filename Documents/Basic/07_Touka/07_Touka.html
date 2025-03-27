@@ -133,16 +133,17 @@
 
             <pre><code class="language-cpp">//6chのスイッチがONの時
 if(sbus_data[6] > 1000){
-    
+            
     //サーボを開く
-    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1, 1500);         
+    HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 500);
+            
 }
 //OFFのとき
 else{
-
+            
     //サーボを閉じる
-    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1, 500);         
-}</code></pre>
+    HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 1800);
+}/code></pre>
                 
             </code></pre>
     

@@ -132,19 +132,17 @@
             <p>if文は "||" でOR、"&&"でANDとすることができるので、条件を頑張って作ってみよう</p>
 
             <pre><code class="language-cpp">//6chのスイッチがON or スイッチがONかつADCの値が一定以上である時
-if(sbus_data[6] > 1000 || (sbus_data[5] && ADC_Value > 2000)){
-    
+if(sbus_data[6] > 1000 || (sbus_data[5] > 1000 && ADC_Value > 2000)){
+
     //サーボを開く
-    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1, 2000);         
+    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1,500);
 }
 //OFFのとき
 else{
 
     //サーボを閉じる
-    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1, 1000);         
+    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 1800);
 }</code></pre>
-                
-            </code></pre>
     
         </details> 
 

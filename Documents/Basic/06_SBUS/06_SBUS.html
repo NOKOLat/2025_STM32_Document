@@ -136,8 +136,8 @@
 #include "usart.h"
 #include "string"
 
-uint8_t  receive_buffer[25];
-uint16_t sbus_data[10] = {};
+uint8_t  ReceiveBuffer[25];
+uint16_t SBUSData[10] = {};
 
 void SBUS_decode();
 
@@ -146,7 +146,7 @@ std::string str;
 void init(){
 
     //割り込みの開始
-    HAL_UART_Receive_DMA(&huart1, receive_buffer, 25);
+    HAL_UART_Receive_DMA(&huart1, ReceiveBuffer, 25);
 }
 
 void loop(){
@@ -154,12 +154,13 @@ void loop(){
     //受信したデータをPCに送信
     for(int i = 0; i < 10; i++){
 
-        str = std::to_string(sbus_data[i]) + " ";
-	    HAL_UART_Transmit(&huart2, (uint8_t *)str.c_str(),str.length(),100);
+        str += std::to_string(SBUSData[i]) + " ";
     }
 
-    //改行を送信
-    str = "\n";
+    //改行を追加
+    str += "\n";
+    
+    //データを送信
 	HAL_UART_Transmit(&huart2, (uint8_t *)str.c_str(),str.length(),100);
 
 }
@@ -168,28 +169,28 @@ void loop(){
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 
     //データがSBUSの形式であるか確認
-	if(receive_buffer[0] == 0x0F && receive_buffer[24] == 0x00){
+	if(ReceiveBuffer[0] == 0x0F && ReceiveBuffer[24] == 0x00){
 
 		SBUS_decode();//SUBSデータの分解
     }
 
     //受信の再開
-    HAL_UART_Receive_DMA(&huart1, receive_buffer, 25);
+    HAL_UART_Receive_DMA(&huart1, ReceiveBuffer, 25);
 }
 
 //SBUSからデータを取り出すプログラム
 void SBUS_decode(){
 
-    sbus_data[0]  = (receive_buffer[1]        | receive_buffer[2] << 8)   & 0x07FF;
-    sbus_data[1]  = (receive_buffer[2] >> 3   | receive_buffer[3] << 5)   & 0x07FF;
-    sbus_data[2]  = (receive_buffer[3] >> 6   | receive_buffer[4] << 2    | receive_buffer[5] << 10) & 0x07FF;
-    sbus_data[3]  = (receive_buffer[5] >> 1   | receive_buffer[6] << 7)   & 0x07FF;
-    sbus_data[4]  = (receive_buffer[6] >> 4   | receive_buffer[7] << 4)   & 0x07FF;
-    sbus_data[5]  = (receive_buffer[7] >> 7   | receive_buffer[8] << 1    | receive_buffer[9] << 9) & 0x07FF;
-    sbus_data[6]  = (receive_buffer[9] >> 2   | receive_buffer[10] << 6)  & 0x07FF;
-    sbus_data[7]  = (receive_buffer[10] >> 5  | receive_buffer[11] << 3)  & 0x07FF;
-    sbus_data[8]  = (receive_buffer[12]       | receive_buffer[13] << 8)  & 0x07FF;
-    sbus_data[9]  = (receive_buffer[13] >> 3  | receive_buffer[14] << 5)  & 0x07FF;
+    SBUSData[0]  = (ReceiveBuffer[1]        | ReceiveBuffer[2] << 8)   & 0x07FF;
+    SBUSData[1]  = (ReceiveBuffer[2] >> 3   | ReceiveBuffer[3] << 5)   & 0x07FF;
+    SBUSData[2]  = (ReceiveBuffer[3] >> 6   | ReceiveBuffer[4] << 2    | ReceiveBuffer[5] << 10) & 0x07FF;
+    SBUSData[3]  = (ReceiveBuffer[5] >> 1   | ReceiveBuffer[6] << 7)   & 0x07FF;
+    SBUSData[4]  = (ReceiveBuffer[6] >> 4   | ReceiveBuffer[7] << 4)   & 0x07FF;
+    SBUSData[5]  = (ReceiveBuffer[7] >> 7   | ReceiveBuffer[8] << 1    | ReceiveBuffer[9] << 9) & 0x07FF;
+    SBUSData[6]  = (ReceiveBuffer[9] >> 2   | ReceiveBuffer[10] << 6)  & 0x07FF;
+    SBUSData[7]  = (ReceiveBuffer[10] >> 5  | ReceiveBuffer[11] << 3)  & 0x07FF;
+    SBUSData[8]  = (ReceiveBuffer[12]       | ReceiveBuffer[13] << 8)  & 0x07FF;
+    SBUSData[9]  = (ReceiveBuffer[13] >> 3  | ReceiveBuffer[14] << 5)  & 0x07FF;
 }</code></pre>
 
         <h2>終わりに</h2>
