@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STM32 応用編2</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        header, footer {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        h1 {
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 10px;
+        }
+        h2 {
+            border-left: 5px solid #2c3e50;
+            padding-left: 10px;
+        }
+        .note {
+            background-color: #e6ffed;
+            border-left: 5px solid #2cbe4e;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            border: 2px solid #2c3e50;
+        }
+        table, th, td {
+            border: 1px solid #2c3e50;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        details {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border: 2px solid #2c3e50;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        summary {
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <h3>STM32資料 応用編2</h3>
+        <h1>I2C通信でセンサーのデータを読み取ってみよう</h1>
+
+        <p>今回は読み取りと書き込みを使ってセンサーデータを受信してみよう</p>
+
+        <p>センサーのデータ取得特有の処理があるけど頑張ってね</p>
+
+        <h2>今回やること</h2>
+        <div class="note">
+            <h3>作業の流れ</h3>
+            <ul>
+                <li>ピンを割り当てる（前回と同じなので省略）</li>
+                <li>printf()の設定をする</li>
+                <li>wrapper.cppにコードを書き込む</li>
+                <li>センサーとSTM32をつなぐ</li>
+                <li>TeraTermでデータを受信する</li>
+            </ul>
+        </div>
+
+        <h2>ピン設定と回路</h2>
+
+        <p>前回と同じです! 確認したい場合は応用編1を見てね!</p>
+        
+        <h2>プログラム</h2>
+
+        <p>今回はシンプルに出来る加速度の値からの姿勢推定をやってみます</p>
+
+        <p>重力加速度の分力を使って角度を求めていきます</p>
+
+
+
+        <h2>サンプルコード</h2>
+        <p>実際にICM45686から値を取得するコードを紹介する</p>
+
+        <p>今回は最低限のレジスタ操作しかしないのでこの3つのみを設定すればよい</p>
+
+        <pre><code class="language-cpp">#include "wrapper.hpp"
+#include "usart.h"
+#include "i2c.h"
+#include "string"
+
+uint8_t I2CADDR = 0x68 << 1;
+uint8_t ACEEL_DATA_X1_UI = 0x00;
+uint8_t PWR_MGMT = 0x10;
+uint8_t WIA = 0x72;
+
+void init(){
+
+    //WIA(WHOAMI)で通信チェック
+    uint8_t WIAValue = 0;
+    uint8_t Error = 0;
+
+    //成功するまで繰り返す(100回失敗したらあきらめる)
+    while(WIAValue != 0xE9){
+
+        HAL_I2C_Mem_Read(&hi2c1, I2CADDR, WIA, 1, &WIAValue, 1, 1000);
+
+        Error++;
+        if(Error > 100){
+            std::string str = "WHOAMI ERROR" + "\n";
+            HAL_UART_Transmit(&huart2, (uint8_t *)str.c_str(),str.length(),100);
+        }
+
+    //センターモードの設定
+    uint8_t Mode = 0x0f;
+    HAL_I2C_Mem_Write(&hi2c1, I2CADDR, PWR_MGMT, 1, &Mode, 1, 1000);
+}
+
+void loop(){
+    
+    uint8_t RawData[12] = {};
+    int16_t AccelData[3] = {};
+    int16_t GyroData[3] = {};
+
+    //センサーからデータを読み取り
+    HAL_I2C_Mem_Read(&hi2c1, I2CADDR, ACEEL_DATA_X1_UI, 1, RawData, 12, 1000);
+
+    //取得データの処理
+	AccelData[0]  = (int16_t)(RawData[0] | RawData[1] << 8);
+	AccelData[1]  = (int16_t)(RawData[2] | RawData[3] << 8);
+	AccelData[2]  = (int16_t)(RawData[4] | RawData[5] << 8);
+
+	GyroData[0]  = (int16_t)(RawData[6]  | RawData[7] << 8);
+	GyroData[1]  = (int16_t)(RawData[8]  | RawData[9] << 8);
+	GyroData[2]  = (int16_t)(RawData[10] | RawData[11] << 8);
+    
+
+    HAL_Delay(100);
+} </code></pre>
+
+        <h2>終わりに</h2>
+
+        <p>今回は実際にセンサーデータを取得してみました</p>
+
+        <p>次回は取得したセンターデータを使って簡単に角度を求めてみよう！</p>
+
+        <h2>リンク</h2>
+        <a href= "https://nokolat.github.io/2025_STM32_Document/"><h3>・メインページ</h3></a>
+    </main>
+    <footer>
+        <p>&copy; 2025 東京農工大学 航空研究会</p>
+    </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-cpp.min.js"></script>
+</body>
+</html>
