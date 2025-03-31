@@ -115,7 +115,7 @@
         
         <h2>プログラム</h2>
 
-        <p>今回はADCのスタートと変換待機と読み取りの3つの関数を使います</p>
+        <p>今回はADCのスタートとストップ、変換待機と読み取りの4つの関数を使います</p>
 
         <h3>ADCのスタート</h3>
         <p>指定したADCを起動するための関数</p>
@@ -212,16 +212,30 @@
             </table>
         </div>  
 
-        <details>
-            <summary>ADCを止める関数</summary>
+        <h3>ADCのストップ</h3>
+        <p>指定したADCを停止するための関数</p>
+        <pre><code class="language-cpp">HAL_ADC_Stop(&hadcx);</code></pre>
 
-            <p>今回は使用しないが、一応紹介しておく</p>
-        
-            <pre><code class="language-cpp">HAL_ADC_Stop(&hadc1);</code></pre>
+        <div class="note">
+            <h3>この関数の引数</h3>
 
-            <p>引数はスタートの関数と同じなので頭の片隅においておくといいかも?</p>
-
-        </details>  
+            <table>
+                <thead>
+                    <tr>
+                        <th>引数名</th>
+                        <th>変数型</th>
+                        <th>内容</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>&hadcx</th>
+                        <th>ADC_HandleTypeDef*</th>
+                        <th>ADCのポインタ（xはADCの番号）</th>
+                    </tr>
+                </tbody>
+            </table>
+        </div>   
 
 
         <h2>サンプルコード</h2>
@@ -236,12 +250,13 @@ uint16_t ADC_Value = 0;
 
 void init(){
     
-    //ADCのスタート
-    HAL_ADC_Start(&hadc1);
     HAL_Delay(500);     
 }
         
 void loop(){
+
+    //ADCのスタート
+    HAL_ADC_Start(&hadc1);
     
     //変換を待機
     if(HAL_ADC_PollForConversion(&hadc1, 1000) == HAL_OK ){
@@ -254,8 +269,11 @@ void loop(){
         HAL_UART_Transmit(&huart2, (uint8_t *)str.c_str(),str.length(),100);
     }
 
+    //ADCのストップ
+    HAL_ADC_Stop(&hadc1);
+
     //ちょっと待機
-    HAL_Delay(100)
+    HAL_Delay(100);
 }</code></pre>
 
         <h2>終わりに</h2>
