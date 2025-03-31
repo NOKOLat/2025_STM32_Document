@@ -79,11 +79,11 @@
         <h3>STM32資料 応用編2</h3>
         <h1>I2C通信でセンサーのデータを読み取ってみよう</h1>
 
-        <p>今回は読み取りと書き込みを使ってセンサーデータを受信してみよう</p>
-
-        <p>センサーのデータ取得特有の処理があるけど頑張ってね</p>
+        <p>今回は前回のプログラムを使って求めた加速度を使って角度を簡単に求めてみよう</p>
 
         <h2>今回やること</h2>
+
+        <p>前回のコードをそのまま使うのでプロジェクトは分けなくても大丈夫！</p>
         <div class="note">
             <h3>作業の流れ</h3>
             <ul>
@@ -170,40 +170,6 @@
         <p>実際にICM45686から値を取得するコードを紹介する</p>
 
         <p>今回は最低限のレジスタ操作しかしないのでこの3つのみを設定すればよい</p>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>レジスタ名</th>
-                    <th>レジスタアドレス</th>
-                    <th>内容</th>
-                    <th>書き込む値</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <th>ACEEL_DATA_X1_UI</th>
-                    <th>0x00</th>
-                    <th>センターデータ(ここから12byteにAccelとGyroのデータがある）</th>
-                    <th>読み取り専用</th>
-                </tr>
-                <tr>
-                    <th>PWR_MGMT</th>
-                    <th>0x10</th>
-                    <th>センサーの電源設定</th>
-                    <th>0x0f（LowNoizeMode)</th>
-                </tr>
-                <tr>
-                    <th>WIA</th>
-                    <th>0x72</th>
-                    <th>通信チェック用</th>
-                    <th>読み取り専用(0xE9が返ってくる）</th>
-                </tr>
-            </tbody>
-        </table>
-    </div>  
-
-
         
         <pre><code class="language-cpp">#include "wrapper.hpp"
 #include "usart.h"
@@ -232,7 +198,7 @@ void init(){
             HAL_UART_Transmit(&huart2, (uint8_t *)str.c_str(),str.length(),100);
         }
 
-    //センターモードの設定
+    //センサーモードの設定
     uint8_t Mode = 0x0f;
     HAL_I2C_Mem_Write(&hi2c1, I2CADDR, PWR_MGMT, 1, &Mode, 1, 1000);
 }

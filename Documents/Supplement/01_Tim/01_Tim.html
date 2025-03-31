@@ -109,7 +109,7 @@
                 <p>このボードのタイマーのクロックは84MHZなので、1秒に8400万回のクロックが発生する</p>
                 <p>そのため、8400クロックごとに1カウントアップするタイマーで1000回カウントすれば8400万回を数えることができる</p>
 
-                <p>そこでPreScalerを8399、Counter Periodを999にする（0からカウントがスタートするので1引く）</p>
+                <p>そこでPreScalerを8399、Counter Periodを9999にする（0からカウントがスタートするので1引く）</p>
             </ul>
         </div>
 
@@ -130,21 +130,55 @@
 
         <div class="note">
             <h3>この関数の引数</h3>
-            <ul>
-                <li>&htim6 <br> 使用するTIMの種類・・・TIM6を使用</li>
-            </ul>
-        </div>   
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>引数名</th>
+                        <th>変数型</th>
+                        <th>内容</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>&htim</th>
+                        <th>TIM_HandleTypeDef*</th>
+                        <th>UARTのポインタ（xはUARTの番号）</th>
+                    </tr>
+                </tbody>
+            </table>
+        </div>    
 
         <h3>割り込み終了時に呼び出される関数</h3>
         <p>UARTのDMAで使ったCallBack関数と同じようなものです</p>
         <pre><code class="language-cpp">void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)</code></pre>
 
-        <p>どのタイマーの割り込みか判別したいときは、</p>
-        <pre><code class="language-cpp">if(htim == &htim6) </code></pre>
-        <p>if文を使ってタイマーを判別しよう</p>
+        <div class="note">
+            <h3>この関数の引数</h3>
+
+            <p>この関数の引数はこちらから変える必要はないので毎回コピペで大丈夫</p>
+            <p>割り込みを発生されたタイマーの情報が *htimに入っているのでif文で判定することができる</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>引数名</th>
+                        <th>変数型</th>
+                        <th>内容</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>&htim</th>
+                        <th>TIM_HandleTypeDef*</th>
+                        <th>UARTのポインタ（xはUARTの番号）</th>
+                    </tr>
+                </tbody>
+            </table>
+        </div>  
 
         <h2>サンプルコード</h2>
-        <p>1sごとに割り込みを発声させて、LEDを点滅させるプログラムを作成した</p>
+        <p>1sごとに割り込みを発生させて、LEDを点滅させるプログラムを作成した</p>
 
         <pre><code class="language-cpp">#include "wrapper.hpp"
 #include "tim.h"
@@ -159,14 +193,14 @@ void init(){
 
 void loop(){
 
-
+    HAL_Delay(1000);
 }
 
 //タイマーのカウントが最大値に達したときに呼び出される
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 
 	//TIM6 1sの割り込み
-	if(htim == &htim6) {
+	if(htim == &htim6){
 
 		HAL_GPIO_TogglePin(GPIOA,GPIO_PIN_5);
 	}
@@ -179,8 +213,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 
         <h2>リンク</h2>
         <a href= "https://nokolat.github.io/2025_STM32_Document/"><h3>・メインページ</h3></a>
-        <a href= "" ><h3>・前のページ</h3></a>
-        <a href= "" ><h3>・次のページ</h3></a>
 
     </main>
     <footer>
