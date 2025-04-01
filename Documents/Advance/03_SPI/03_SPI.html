@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STM32 応用編3</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        header, footer {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        h1 {
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 10px;
+        }
+        h2 {
+            border-left: 5px solid #2c3e50;
+            padding-left: 10px;
+        }
+        .note {
+            background-color: #e6ffed;
+            border-left: 5px solid #2cbe4e;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            border: 2px solid #2c3e50;
+        }
+        table, th, td {
+            border: 1px solid #2c3e50;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        details {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border: 2px solid #2c3e50;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        summary {
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <h3>STM32資料 応用編3</h3>
+        <h1>SPI通信でセンサーのデータを読み取ってみよう</h1>
+
+        <p>前回はI2C通信を使ったので同じ操作をSPI通信を使ってやってみよう</p>
+
+        <h2>今回やること</h2>
+
+        <div class="note">
+            <h3>作業の流れ</h3>
+            <ul>
+                <li>ピンを割り当てる</li>
+                <li>wrapper.cppにコードを書き込む</li>
+                <li>センサーとSTM32をつなぐ</li>
+                <li>TeraTermでデータを受信する</li>
+            </ul>
+        </div>
+
+        <h2>SPI通信とは</h2>
+
+        <p>I2Cのようにセンサーと通信する時に使う通信形式の1つ</p>
+
+        <p>送受信の2本の通信線と、デバイス選択の信号線を使うことで高速通信を実現している</p>
+
+        <div class="note">
+            <h3>I2CとSPIの違い</h3>
+
+            <p>簡単にI2CとSPIの違いを表にまとめてみた</p>
+            <p>例外は色々あるので、この通りにならないこともしばしばある</p>
+
+            <p>速度が早くいいことばかりに見えるが、デバイスごとに信号線が必要になるので</p>
+            <p>センターの数だけ配線が複雑になってしまうというデメリットを抱えている</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>要素</th>
+                        <th>I2C通信</th>
+                        <th>SPI通信</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>通信線</th>
+                        <th>1本(SDA)</th>
+                        <th>2本(MISO, MOSI)</th>
+                    </tr>
+                    <tr>
+                        <th>信号線</th>
+                        <th>1本(SCL)</th>
+                        <th>1本(SCK)</th>
+                    </tr>
+                    <tr>
+                        <th>デバイス選択</th>
+                        <th>I2Cアドレス（プログラム）</th>
+                        <th>信号線(CS, ハード)</th>
+                    </tr>
+                    <tr>
+                        <th>通信速度（このセンサーの最大値）</th>
+                        <th>1Mbps</th>
+                        <th>24Mbps</th>
+                    </tr>
+                </tbody>
+            </table>
+        </div>  
+
+        <h3>デバイス選択(CS)とは</h3>
+
+        <p>SPI通信のCSピンに繋がる信号線は、選択時に0v、非選択時には3.3vに保っておく必要がある</p>
+
+        <p>そこでGPIOを使用し、通信直前にRESET、通信後にSETをすることでこの動作を実装できる</p>
+
+        <h2>ピンの割り当て</h2>
+
+        <h3>ピンの設定</h3>
+
+
+
+        <p>今回はSPI1を使うので図のようにSPIのピンを3つとGPIOを設定しよう</p>
+
+        <img src="Pin.png">
+
+        <h3>詳細設定</h3>
+
+        <p>SPI1の設定を開き、BaudRateが1~5Mbits程度になるようにPrescalerの値を変更しよう</p>
+
+        <img src="SPI_Config.png">
+
+        <p>System CoreからGPIOを選択し、PB6の設定を変更しよう</p>
+
+        <img src="GPIO_Config.png">
+
+        <h2>回路</h2>
+
+        <p>SPI通信は配線が増えてくるので、5VとGNDだけは間違えないように気を付けよう</p>
+
+        <div class="note">
+            <h3>ICM45686のピン配置について</h3>
+
+            <p>今回は実際のデータシートと同じような形式で配線を紹介する</p>
+
+            <p>I2C通信で線をつないだ場所には20個のピンがあり、正面から見たときにこのように名前がついている</p>
+
+            <p>実際はこの図と回路図を見ながら配線をつないでいくことになる</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Pin2</th>
+                        <th>Pin4(CS)</th>
+                        <th>(中略)</th>
+                        <th>Pin14</th>
+                        <th>Pin16(SCLK)</th>
+                        <th>Pin18(SDIO)</th>
+                        <th>Pin20(SDO)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>Pin1</th>
+                        <th>Pin3</th>
+                        <th>(中略)</th>
+                        <th>Pin13(GND)</th>
+                        <th>Pin15</th>
+                        <th>Pin17</th>
+                        <th>Pin19(5v)</th>
+                    </tr>
+                </tbody>
+            </table>
+
+        <h3>STM32との接続</h3>
+
+        <p>先ほど割り当てたSTMのピンとICMのピンを図のようにつなげよう</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>役割</th>
+                        <th>STM32</th>
+                        <th>ICM45686</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>5v</th>
+                        <th>5v</th>
+                        <th>Pin19</th>
+                    </tr>
+                    <tr>
+                        <th>GND</th>
+                        <th>GND</th>
+                        <th>Pin13</th>
+                    </tr>
+                    <tr>
+                        <th>データ(STM→ICM)</th>
+                        <th>MOSI(D12)</th>
+                        <th>Pin18</th>
+                    </tr>
+                    <tr>
+                        <th>データ(ICM→STM)</th>
+                        <th>MISO(D11)</th>
+                        <th>Pin20</th>
+                    </tr>
+                    <tr>
+                        <th>クロック</th>
+                        <th>SCK(D13)</th>
+                        <th>Pin16</th>
+                    </tr>
+                    <tr>
+                        <th>デバイス選択</th>
+                        <th>GPIO(D10)</th>
+                        <th>Pin4</th>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        
+        <h2>プログラム</h2>
+
+        <p>I2Cと似た書き込みと読み取りの関数が用意されているので、まとめて紹介する</p>
+
+        <h3>SPI通信で書き込みをする関数</h3>
+
+        <p>引数が少なくレジスタアドレスの引数がないが、後で説明するので気にしないで大丈夫!</p>
+    
+        <h3>関数</h3>
+        <pre><code class="language-cpp">HAL_SPI_Transmit(&hspix, TxBuffer, Size, TimeOut);</code></pre>
+
+        <div class="note">
+            <h3>この関数の引数</h3>
+
+            <p>送信データはポインタを送る必要がある</p>
+            <p>SPI通信の場合は後述する理由のため、送信データはほとんど配列を渡すことになる</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>引数名</th>
+                        <th>変数型</th>
+                        <th>内容</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>&hi2cx</th>
+                        <th>SPI_HandleTypeDef*</th>
+                        <th>SPIのポインタ（xはSPIの番号）</th>
+                    </tr>
+                    <tr>
+                        <th>TxBuffer</th>
+                        <th>uint8_t*</th>
+                        <th>送信データ（ポインタ）</th>
+                    </tr>
+                    <tr>
+                        <th>Size</th>
+                        <th>uint16_t</th>
+                        <th>送信データサイズ</th>
+                    </tr>
+                    <tr>
+                        <th>TimeOut</th>
+                        <th>uint32_t</th>
+                        <th>最大実行時間(超えたら諦める)</th>
+                    </tr>
+                </tbody>
+            </table>
+        </div>   
+
+        <h3>SPI通信で読み取りをする関数</h3>
+
+        <p>SPI通信では書き込みと読み取りを同時に行うことができるため、このような関数名になっている</p>
+    
+        <h3>関数</h3>
+        <pre><code class="language-cpp">HAL_SPI_TransmitReceive(&hspix, TxBuffer, RxBuffer, Size, TimeOut);</code></pre>
+
+        <div class="note">
+            <h3>この関数の引数</h3>
+
+            <p>送信データはポインタを送る必要がある</p>
+            <p>SPI通信の場合は後述する理由のため、送信データはほとんど配列を渡すことになる</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>引数名</th>
+                        <th>変数型</th>
+                        <th>内容</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>&hi2cx</th>
+                        <th>SPI_HandleTypeDef*</th>
+                        <th>SPIのポインタ（xはSPIの番号）</th>
+                    </tr>
+                    <tr>
+                        <th>TxBuffer</th>
+                        <th>uint8_t*</th>
+                        <th>送信データ（ポインタ）</th>
+                    </tr>
+                    <tr>
+                        <th>RxBuffer</th>
+                        <th>uint8_t*</th>
+                        <th>受受信データ（ポインタ）</th>
+                    </tr>
+                    <tr>
+                        <th>Size</th>
+                        <th>uint16_t</th>
+                        <th>送信データサイズ</th>
+                    </tr>
+                    <tr>
+                        <th>TimeOut</th>
+                        <th>uint32_t</th>
+                        <th>最大実行時間(超えたら諦める)</th>
+                    </tr>
+                </tbody>
+            </table>
+        </div>   
+
+        <h2>データの書き込みと読み取りの流れ</h2>
+
+        <p>詳しいことまで知る必要はないが、例を出しつつ簡単に紹介する</p>
+
+        <h3>書き込み</h3>
+
+        <p>SPI通信での書き込みでは、レジスタアドレス→書き込みたいデータを連続で送信する</p>
+
+        <p>この前後、デバイス選択をするためにCSピンにつながっているGPIOを操作している</p>
+        
+        <pre><code class="language-cpp">uint8_t TxBuffer[2] = {};
+            
+TxBuffer[0] = REGISTER_ADDR; //書き込みたいレジスタのアドレス
+TxBuffer[1] = 0x15; //書き込みたい値
+
+HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+        
+HAL_SPI_Transmit(&hspi1, TxBuffer, 2, 1000);
+        
+HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);</code></pre>
+
+        <h3>読み取り</h3>
+
+        <p>SPI通信での読み取りでは、まずレジスタアドレスの8桁目を1にする</p>
+
+        <p>これはレジスタアドレスの後の | 0x80;という操作で実装している</p>
+
+        <p>その後RxBufferの2番目の要素に読み取った値が入る仕組みになっている</p>
+
+<pre><code class="language-cpp">uint8_t TxBuffer[2] = {};
+uint8_t RxBuffer[2] = {};
+
+TxTmp[0] = REGISTER_ADDR | 0x80;
+TxTmp[1] = 0x00;
+
+HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+
+HAL_SPI_TransmitReceive(&hspi1, TxBuffer, RxBuffer, 2, 1000);
+
+HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+
+uint8_t ReadValue = RxBuffer[2]</code></pre>
+
+        <details>
+            <summary>複数バイトの読み取りについて</summary>
+            <br>
+            <p>紹介したコードでは1バイトの受信しかできない</p>
+            <p>基本は繰り返すことで実装すれば問題ないが、関数などにまとめたい場合はfor文などを使って書くことになる</p>
+            
+            <p>色々考えてみるともっといい書き方がありそうなので、見つけたら教えてくれるとうれしい</p>
+
+            <pre><code class="language-cpp">uint8_t RxBuffer[2] = {};
+uint8_t TxBuffer[2] = {};
+uint8_t Data[10] = {};
+            
+for(uint8_t i=0; i<10; i++){
+            
+    TxBuffer[0] = 0x15 | 0x80;
+    TxBuffer[1] = 0x00;
+            
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+
+    HAL_SPI_TransmitReceive(&hspi1, TxBuffer, RxBuffer, 2, 1000);
+                    
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+            
+    Data[i] = RxBuffer[1];
+}</code></pre> 
+
+        </details>
+
+
+        <h2>サンプルコード</h2>
+        
+        <p>実際に通信するためのコードを書いてみよう</p>
+
+        <p>I2Cと違い通信の操作にたくさんのプログラムが必要なので、ReadとWriteの関数を作成してみるのもいいかも？</p>
+
+        <div class="note">
+            <h3>使用するレジスタ</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>レジスタ名</th>
+                        <th>レジスタアドレス</th>
+                        <th>内容</th>
+                        <th>値</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>ACEEL_DATA_X1_UI</th>
+                        <th>0x00</th>
+                        <th>センターデータ(ここから12byteにAccelとGyroのデータがある）</th>
+                        <th>読み取り専用</th>
+                    </tr>
+                    <tr>
+                        <th>PWR_MGMT</th>
+                        <th>0x10</th>
+                        <th>センサーの電源設定</th>
+                        <th>0x0f（LowNoizeMode)</th>
+                    </tr>
+                    <tr>
+                        <th>WIA</th>
+                        <th>0x72</th>
+                        <th>通信チェック用</th>
+                        <th>読み取り専用(0xE9が返ってくる）</th>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <p><strong>今回は普通に難しいので、わからなくて当然に近いかもしれない、、</strong></p>
+        <p><strong>いつも以上に気軽に質問をしてね！</strong></p>
+
+        <h2>終わりに</h2>
+
+        <p>今回は実際にセンサーデータを取得してみました</p>
+
+
+        <h2>リンク</h2>
+        <a href= "https://nokolat.github.io/2025_STM32_Document/"><h3>・メインページ</h3></a>
+    </main>
+    <footer>
+        <p>&copy; 2025 東京農工大学 航空研究会</p>
+    </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-cpp.min.js"></script>
+</body>
+</html>
