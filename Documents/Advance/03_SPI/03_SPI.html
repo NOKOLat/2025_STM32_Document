@@ -386,7 +386,7 @@ HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);</code></pre>
 <pre><code class="language-cpp">uint8_t TxBuffer[2] = {};
 uint8_t RxBuffer[2] = {};
 
-TxTmp[0] = REGISTER_ADDR | 0x80;
+TxTmp[0] = REGISTER_ADDR | 0x80;//読み取りたいレジスタのアドレス
 TxTmp[1] = 0x00;
 
 HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
@@ -402,16 +402,17 @@ uint8_t ReadValue = RxBuffer[2]</code></pre>
             <br>
             <p>紹介したコードでは1バイトの受信しかできない</p>
             <p>基本は繰り返すことで実装すれば問題ないが、関数などにまとめたい場合はfor文などを使って書くことになる</p>
+            <p>このコードでは連続する複数のレジスタを読み取る例である（センサーデータを読み取るときに使いそう）</p>
             
             <p>色々考えてみるともっといい書き方がありそうなので、見つけたら教えてくれるとうれしい</p>
 
             <pre><code class="language-cpp">uint8_t RxBuffer[2] = {};
 uint8_t TxBuffer[2] = {};
-uint8_t Data[10] = {};
+uint8_t Data[12] = {};
             
-for(uint8_t i=0; i<10; i++){
+for(uint8_t i=0; i<12; i++){
             
-    TxBuffer[0] = 0x15 | 0x80;
+    TxBuffer[0] = 0x00 | 0x80; //レジスタアドレス
     TxBuffer[1] = 0x00;
             
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
@@ -460,7 +461,7 @@ for(uint8_t i=0; i<10; i++){
                         <th>WIA</th>
                         <th>0x72</th>
                         <th>通信チェック用</th>
-                        <th>読み取り専用(0xE9が返ってくる）</th>
+                        <th>読み取り専用(0xE9が返ってくる)</th>
                     </tr>
                 </tbody>
             </table>
