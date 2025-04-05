@@ -103,7 +103,7 @@
         <p>(このコードはインクルードガードとも呼ばれている)</p>
 
 
-        <h2>ICM45686.h</h2>
+        <h2>ICM45686.hpp</h2>
 
         <p>ここでは、先ほどの仕様にそって3つのことを行った</p>
 
@@ -120,8 +120,8 @@
 
         <p>この関数は、メンバー関数が使うだけなのでprivateで宣言している</p>
 
-        <pre><code class="language-cpp">#ifndef INC_ICM45686_H_
-#define INC_ICM45686_H_
+        <pre><code class="language-cpp">#ifndef INC_ICM45686_HPP_
+#define INC_ICM45686_HPP_
 
 #include "cstdint"
 #include "i2c.h"
@@ -153,7 +153,9 @@ class ICM45686{
         //書き込みと読み取りの関数
         void Read(REGISTER register, uint8_t* rx_buffer, uint8_t len); //Read関数の宣言
         void Write(REGISTER register, uint8_t* tx_buffer, uint8_t len); //Write関数の宣言
-};</code></pre>
+}
+
+endif;</code></pre>
 
         <h2>ICM45686.cpp</h2>
 
@@ -161,7 +163,7 @@ class ICM45686{
 
         <p>WIAのコードを参考にして、電源モード設定、データ取得の関数は自分で実装してみよう</p>
 
-        <pre><code class="language-cpp">#include "ICM45686.h"
+        <pre><code class="language-cpp">#include "ICM45686.hpp"
 
 //コンストラクタの実装
 ICM45686::ICM45686(I2C_HandleTypeDef* use_i2c_pin){
@@ -225,7 +227,7 @@ void ICM45686::GetSensorData(int16_t accel_data[3], int16_t gyro_data[3]){
         <p>これならあまりコードを書いたことがない人も簡単に使ってもらうことができる</p>
 
         <pre><code class="language-cpp">#include "wrapper.hpp"
-#include "ICM45686.h"
+#include "ICM45686.hpp"
 #include "i2c.h"
 #include "usart.h"
 
@@ -240,7 +242,7 @@ void init(){
     wia = icm.WIA(); //WIAを取得
 
     //WIAが正しいか確認のため送信する(0xE9 = 233)
-    HAL_UART_Transmit(&huart2, (uint8_t*)"WIA Error\r\n", 12, 1000);
+    HAL_UART_Transmit(&huart2, &wia, 1, 1000);
 
     //電源モードを設定する関数を呼び出す
     icm.PowerON(); 

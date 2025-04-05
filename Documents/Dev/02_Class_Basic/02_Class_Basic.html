@@ -104,9 +104,9 @@
 
         <h2>ファイル構成</h2>
 
-        <p>クラスを使うときは、<strong>ヘッダーファイル(.h)</strong>と<strong>ソースファイル(.cpp)</strong>の2つのファイルを作成する</p>
+        <p>クラスを使うときは、<strong>ヘッダーファイル(.hpp)</strong>と<strong>ソースファイル(.cpp)</strong>の2つのファイルを作成する</p>
         <pre><code class="language-cpp">//2つのファイルを作成する
-(ClassName).h
+(ClassName).hpp
 (ClassName).cpp</code></pre>        
         <p>ヘッダーファイルには、<strong>クラスの定義やメンバー変数、メンバー関数の宣言</strong>を記述する</p>
         <p>ソースファイルには、ヘッダーファイルで<strong>宣言したメンバ関数の中身</strong>を記述する</p>
@@ -117,7 +117,7 @@
 
         <p>中身が少ない場合は1つのファイルにまとめることもあるが、基本は2つに分けよう</p>
 
-        <h2>ヘッダーファイル(.h)の書き方</h2>
+        <h2>ヘッダーファイル(.hpp)の書き方</h2>
 
         <p>ヘッダーファイルでは、クラスの宣言をおこなう</p>
 
@@ -219,7 +219,7 @@ I2C_HandleTypeDef* i2c_pin; //I2Cのピン情報を格納するメンバ変数
         <p>コンストラクタもほかの関数と同じように実装できる</p>
 
         <p>ここでは、引数で受け取った値をメンバー変数に格納している</p>
-        <pre><code class="language-cpp">#include "ICM45686.h" //ヘッダーファイルをインクルード
+        <pre><code class="language-cpp">#include "ICM45686.hpp" //ヘッダーファイルをインクルード
 
 ICM45686(I2C_HandleTypeDef* use_i2c_pin){ //コンストラクタの実装
 
