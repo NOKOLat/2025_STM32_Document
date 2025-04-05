@@ -124,6 +124,7 @@
 #define INC_ICM45686_H_
 
 #include "cstdint"
+#include "i2c.h"
 
 class ICM45686{
 
@@ -214,6 +215,52 @@ void ICM45686::GetSensorData(int16_t accel_data[3], int16_t gyro_data[3]){
     //センサーから受信するためのuint8_t型のRawData[12]を宣言して12バイト分受信しよう
 
 }</code></pre>
+
+        <h2>実際に使ってみよう</h2>
+
+        <p>作成したクラスを使って実際にICM45686と通信してみよう</p>
+
+        <p>実際にコードを見てみると、明らかに簡潔で何をしているかが分かりやすくなった</p>
+
+        <p>これならあまりコードを書いたことがない人も簡単に使ってもらうことができる</p>
+
+        <pre><code class="language-cpp">#include "wrapper.hpp"
+#include "ICM45686.h"
+#include "i2c.h"
+#include "usart.h"
+
+ICM45686 icm45686(&hi2c1); //ICM45686のインスタンスを作成
+int16_t accel_data[3]; //加速度データを格納する変数
+int16_t gyro_data[3]; //ジャイロデータを格納する変数[
+
+uint8_t wia; //WIAを格納する変数
+
+void init(){
+
+    wia = icm.WIA(); //WIAを取得
+
+    //WIAが正しいか確認のため送信する(0xE9 = 233)
+    HAL_UART_Transmit(&huart2, (uint8_t*)"WIA Error\r\n", 12, 1000);
+
+    //電源モードを設定する関数を呼び出す
+    icm.PowerON(); 
+}
+
+void loop(){   
+
+    //データを取得する関数を呼び出す
+    icm.GetSensorData(accel_data, gyro_data);
+
+    //取得したデータを送信する（コメントアウトで送信するデータを選べる）
+
+    HAL_UART_Transmit(&huart2, (uint8_t*)"Accel Data: ", 12, 1000);
+    HAL_UART_Transmit(&huart2, (uint8_t*)&accel_data, sizeof(accel_data), 1000);
+
+    //HAL_UART_Transmit(&huart2, (uint8_t*)"Gyro Data: ", 12, 1000);
+    //HAL_UART_Transmit(&huart2, (uint8_t*)&gyro_data, sizeof(gyro_data), 1000);
+}
+        </code></pre>
+
 
         <h2>リンク</h2>
         <a href= "https://nokolat.github.io/2025_STM32_Document/"><h3>・メインページ</h3></a>
