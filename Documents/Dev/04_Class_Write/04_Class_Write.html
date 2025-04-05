@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>発展編4 クラス作成</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        header, footer {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        h1 {
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 10px;
+        }
+        h2 {
+            border-left: 5px solid #2c3e50;
+            padding-left: 10px;
+        }
+        .note {
+            background-color: #e6ffed;
+            border-left: 5px solid #2cbe4e;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            border: 2px solid #2c3e50;
+        }
+        table, th, td {
+            border: 1px solid #2c3e50;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        details {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border: 2px solid #2c3e50;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        summary {
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        
+        <h3>STM32資料 発展編3</h3>
+        <h1>実際にクラスを書いてみよう</h1>
+
+        <p>ここまで学習したクラスを実際に使ってICM45686のクラスを書いてみよう</p>
+
+        <p>すべての機能を実装するのは難しいので応用編と同じように</p>
+
+        <p>WIA、電源モード設定、データ取得の3つの機能をI2C通信とSPI通信で実装してみよう</p>
+
+        <p>また、使用者が使いやすいようにレジスタや設定の数字はenum classで文字に対応させよう</p>
+
+        <strong>一人でやるには難しい内容なので、関数の実装部分だけを書いてもらいます</strong>
+
+        <h2>クラスの設計を考える</h2>
+
+        <p>クラスを作るときには設計が一番重要といっても過言ではない</p>
+
+        <p>しかし、非常に難しいのでここでは一緒に考えてみよう</p>
+
+        <p>まず、今回の仕様から必要な要素を考えてみる</p>
+
+        <div class="note">
+            <h3>今回やること</h3>
+
+            <p><strong>ここでは基底クラスをICM45686とする</strong></p>
+    
+            <table>
+                <thead>
+                    <tr>
+                        <th>仕様</th>
+                        <th>やること</th>
+                        <th>内容</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>I2CとSPIに対応</th>
+                        <th>仮想関数を使う</th>
+                        <th>ICM45686_I2C, ICM45686_SPIクラスを作成する</th>
+                    </tr>
+                    <tr>
+                        <th>3つの機能を実装</th>
+                        <th>3つの機能の関数を作る</th>
+                        <th>応用編の実装と同じ</th>
+                    </tr>
+                    <tr>
+                        <th>設定の数字を文字に対応させる</th>
+                        <th>enum classを使用</th>
+                        <th>REGISTER, POWER_MODEの設定を対応させる</th>
+                    </tr>
+            </table>
+        </div>          
+
+        <h2>設計からクラスの外枠を作成する</h2>
+
+        <p>クラスを作成する時は、上のクラスボタンから追加しよう</p>
+
+        <p>今回はファイル名を設定してチェックはすべて外そう</p>
+
+        <img src="Class.png">
+
+        <p>ここから作成すると、何度もインクルードしてバグが起きないようにするためのコードなどが自動で作成される</p>
+        
+        <p>(このコードはインクルードガードとも呼ばれている)</p>
+
+
+        <h2>ICM45686.h</h2>
+
+        <p>ここでは、先ほどの仕様にそって4つのことを行った</p>
+
+        <div class="note">
+
+            <h3>やったこと</h3>
+
+            <li>ICM45686クラスの宣言</li>
+            <li>REGISTER, POWER_MODEのenum classの宣言</li>
+            <li>WIA, SetPowerMode, GetSensorDataの関数の宣言</li>
+            <li>Read, Writeの仮想関数の宣言</li>
+        </div>
+
+        <p>具体的な設定の数字以外はすべて知っている要素だと思うので読んでみてね</p>
+
+        <pre><code class="language-cpp">#ifndef INC_ICM45686_H_
+#define INC_ICM45686_H_
+
+#include <cstdint>
+#include <bitset>
+
+class ICM45686{
+
+    public:
+
+        //レジスタアドレスの定義
+        enum class REGISTER : uint8_t{
+
+            WIA = 0x72, //WIAレジスタ
+            PWR_MGMT0 = 0x15, //電源管理レジスタ
+            ACCEL_X = 0x00  //データの先頭レジスタ
+        };
+
+        enum class POWER_MODE : uint8_t{
+
+            OFF = 0x00, //電源OFF
+            ON  = 0x0f, //電源ON
+        };
+
+        //WIAを取得する関数
+        uint8_t WIA(void);
+
+        //電源モードを設定する関数(POWER_MODEはenum classで定義)
+        //引数はenum classのPOWER_MODE型で、enum classの中に定義したものを指定する
+        void SetPowerMode(POWER_MODE mode);
+
+        //データを取得する関数
+        void GetSensorData(int16_t accel_data[3], int16_t gyro_data[3]);
+
+    private:
+
+        //仮想関数の定義
+        virtual void Read(ICM45686::REGISTER, uint8_t* RxBuffer, uint8_t Len) = 0;
+        virtual void Write(ICM45686::REGISTER, uint8_t* TxBuffer, uint8_t Len) = 0;
+};</code></pre>
+
+        <h2>ICM45686.cpp</h2>
+
+        <p>先ほど、仮想関数でReadとWriteを定義したのでこれを使って実装をしていく</p>
+
+        <p>このReadとWriteは後で実装するが、軽く内容の説明をしておく</p>
+
+        <p>これは、I2CとSPI通信で共通なレジスタアドレスと値を入れる変数と読み取る長さのみを引数にもつ関数である</p>
+
+        <pre><code class="language-cpp">virtual void Read(ICM45686::REGISTER, uint8_t* RxBuffer, uint8_t Len)</code></pre>
+
+        例えばWIAレジスタの値を読み取りたい場合は、あらかじめ変数を用意しておいて
+
+        <pre><code class="language-cpp">Read(ICM45686::REGISTER;+WIA, &read_value, 1)</code></pre>
+
+        <p>このように書くことでWIAレジスタの値を読むことができる</p>
+
+        <p>このようにすることで、I2CとSPIの両方での実装に対応できる</p>
+
+        <p><strong>SetPowerModeとGetDataの関数を自分で書いてみよう</p></strong>
+
+        <pre><code class="language-cpp">#include "ICM45686.h"
+
+//WIAを取得する関数
+void ICM45686::WIA(){
+
+    uint8_t read_value = 0; //WIAの値を格納する変数
+
+    //Read関数を使ってWIAレジスタの値を取得する
+    Read(ICM45686::REGISTER::WIA, &read_value, 1);
+
+    return read_value; //取得した値を返す
+}
+
+//電源モードを設定する関数
+void ICM45686::SetPowerMode(POWER_MODE mode){
+
+    //電源モードはmodeに入っている
+    //使うときは、uint8_t型で書き込むので (uint8_t)modeと書こう
+}
+
+//データを取得する関数
+void ICM45686::GetSensorData(int16_t accel_data[3], int16_t gyro_data[3]){
+
+    //int16_t型にするコードは応用編2で説明したものを使おう
+    //センサーから受信するためのuint8_t型のRawData[12]を宣言して12バイト分受信しよう
+
+}</code></pre>
+
+        <h2>リンク</h2>
+        <a href= "https://nokolat.github.io/2025_STM32_Document/"><h3>・メインページ</h3></a>
+
+    </main>
+    <footer>
+        <p>&copy; 2025 東京農工大学 航空研究会</p>
+    </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-cpp.min.js"></script>
+</body>
+</html>
