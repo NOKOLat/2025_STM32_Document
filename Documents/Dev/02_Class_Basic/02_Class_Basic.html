@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>発展編1 構造体</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        header, footer {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        h1 {
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 10px;
+        }
+        h2 {
+            border-left: 5px solid #2c3e50;
+            padding-left: 10px;
+        }
+        .note {
+            background-color: #e6ffed;
+            border-left: 5px solid #2cbe4e;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            border: 2px solid #2c3e50;
+        }
+        table, th, td {
+            border: 1px solid #2c3e50;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        details {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border: 2px solid #2c3e50;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        summary {
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        
+        <h3>STM32資料 発展編3</h3>
+        <h1>クラスを使ってみよう1</h1>
+
+        <p>発展編の目標である、センサーのライブラリ作成に不可欠なクラスという概念を勉強してみよう</p>
+
+        <p>たくさんコードを書いてる人でも難しい部分があるので、こんな感じでやるんだな程度の理解で大丈夫</p>
+
+        <h2>クラスとは</h2>
+
+        <h3>構造体との違い</h3>
+
+        <p>C++ではクラスは構造体とよく似ていて、<strong>初期のアクセス権がPublicな構造体</strong>である</p>
+
+        <p>しかし、一般的には用途によって使い分けられていることが多く</p>
+
+        <li><strong>構造体</strong>・・・データをまとめて管理する用途</li>
+        <li><strong>クラス</strong>・・・複雑な機能を持つ集合体を管理する用途</li>
+
+        <p>応用編で扱ったセンサーで例をあげると</p>
+
+        <li><strong>センサーから取得したデータ・・・構造体</strong></li>
+        <li><strong>データを取得するプログラム・・・クラス</strong></li>
+
+        <p>のような使い分けになることが多い</p>
+
+        <h2>ファイル構成</h2>
+
+        <p>クラスを使うときは、<strong>ヘッダーファイル(.h)</strong>と<strong>ソースファイル(.cpp)</strong>の2つのファイルを作成する</p>
+        <pre><code class="language-cpp">//2つのファイルを作成する
+(ClassName).h
+(ClassName).cpp</code></pre>        
+        <p>ヘッダーファイルには、<strong>クラスの定義やメンバー変数、メンバー関数の宣言</strong>を記述する</p>
+        <p>ソースファイルには、ヘッダーファイルで<strong>宣言したメンバ関数の中身</strong>を記述する</p>
+        <p>このように分けることで、他のファイルからはヘッダーファイルをインクルードするだけで使用できるようになる</p>
+        <pre><code class="language-cpp">//使うときはヘッダーファイルのみをインクルード
+#include (ClassName).h</code></pre>     
+
+
+        <p>中身が少ない場合は1つのファイルにまとめることもあるが、基本は2つに分けよう</p>
+
+        <h2>ヘッダーファイル(.h)の書き方</h2>
+
+        <p>ヘッダーファイルでは、クラスの宣言をおこなう</p>
+
+        <p>publicはインクルードした時に使用者が使う部分になるので、わかりやすい命名を心がけよう</p>
+
+        <p><strong>使用者は基本的に関数のみを使って操作し、その関数が変数を動かして中身の処理をする</strong>ので、</p>
+
+        <p>publicに関数、privateに変数という書き方になることが多い（やりたいことによって例外あり）</p>
+
+        <p>(GetSensorData()のようなわかりやすい名前だと使うとき嬉しいね)</p>
+        <pre><code class="language-cpp">class ClassName{
+
+    public:
+            
+        //Class名と同じ名前でなければOK（次回説明）
+        void Function();
+                
+    private:
+                
+        //変数型はなんでもOK
+        int value = 0;
+};</code></pre>        
+        
+        <h2>ソースファイル(.cpp)の書き方</h2>
+
+        <p>ClassName内の関数を実装する</p>
+
+        <p>実装するときは(Class名)::(関数名)というように書く必要がある</p>
+
+        <p>"::"をスコープ演算子といって、このクラスの中の関数のことだよという意味を示している</p>
+
+        <p>また、メンバー変数はこの関数内では自由に使用することができる</p>
+
+        <p>ある関数で値1を10倍して、ほかの関数で値1を1/2にするなど関数をまたいだ処理ができる</p>
+
+        <p>(同じ名前で同じ型の変数は共通なので、この2つの関数を実行すると値1が元の5倍になる)</p>
+
+        <pre><code class="language-cpp">#include "ClassName.h"
+
+ClassName::Function(){
+            
+    //ここに関数の処理を書く
+            
+} </code></pre>
+
+        <h2>クラスのメリット</h2>
+
+        <p>ここまでクラスの書き方を紹介したが、この書き方には大きなメリットがある</p>
+
+        <p>それは<strong>使用者は関数を呼び出すだけでよい</strong>点である</p>
+
+        <p>つまり、センサーの使用や通信への知識が全くなくてもGetSensorData()を実行するだけで</p>
+        <p>センサーのデータを取得することができる</p>
+
+        <p>通信の仕組みがわからなくてもHALライブラリを使うことで実装することができるのと似ている</p>
+        <p>(HALライブラリの中身はクラスにはなっていないけどね)</p>
+
+        <h2>リンク</h2>
+        <a href= "https://nokolat.github.io/2025_STM32_Document/"><h3>・メインページ</h3></a>
+
+    </main>
+    <footer>
+        <p>&copy; 2025 東京農工大学 航空研究会</p>
+    </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/components/prism-cpp.min.js"></script>
+</body>
+</html>
