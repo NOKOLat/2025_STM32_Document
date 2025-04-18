@@ -372,6 +372,7 @@ uint8_t ReadValue = RxBuffer[2]</code></pre>
 
         <p>上で紹介した読み取りのコードをvoid init();の前にコピペして、この関数とusartを使ってWIAの値をPCに送ってみよう</p>
 
+        <p>I2Cの時と同様に0xE9(233)が帰ってきたら成功</p>
         <div class="note">
             <h3>使用するレジスタ</h3>
             <table>
