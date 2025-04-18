@@ -155,14 +155,14 @@
 
         <p>この前後、デバイス選択をするためにCSピンにつながっているGPIOを操作している</p>
         
-        <pre><code class="language-cpp">uint8_t TxBuffer[2] = {};
+        <pre><code class="language-cpp">uint8_t tx_buffer[2] = {};
             
-TxBuffer[0] = REGISTER_ADDR; //書き込みたいレジスタのアドレス
-TxBuffer[1] = 0x15; //書き込みたい値
+tx_buffer[0] = REGISTER_ADDR; //書き込みたいレジスタのアドレス
+tx_buffer[1] = 0x15; //書き込みたい値
 
 HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
         
-HAL_SPI_Transmit(&hspi1, TxBuffer, 2, 1000);
+HAL_SPI_Transmit(&hspi1, tx_buffer, 2, 1000);
         
 HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);</code></pre>
 
