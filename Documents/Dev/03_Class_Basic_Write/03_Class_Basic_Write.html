@@ -90,7 +90,7 @@
 
         <strong>一人でやるには難しい内容なので、関数の実装部分だけを書いてもらいます</strong>        
 
-        <h2>クラスの外枠を作成する</h2>
+        <h2>クラスのファイルを作成する</h2>
 
         <p>クラスを作成する時は、上のクラスボタンから追加しよう</p>
 
@@ -101,7 +101,6 @@
         <p>ここから作成すると、何度もインクルードしてバグが起きないようにするためのコードなどが自動で作成される</p>
         
         <p>(このコードはインクルードガードとも呼ばれている)</p>
-
 
         <h2>ICM45686.hpp</h2>
 
@@ -151,8 +150,8 @@ class ICM45686{
         uint8_t I2C_ADDR = 0b1101000 << 1; //ICM45686のI2Cアドレス
 
         //書き込みと読み取りの関数
-        void Read(REGISTER register, uint8_t* rx_buffer, uint8_t len); //Read関数の宣言
-        void Write(REGISTER register, uint8_t* tx_buffer, uint8_t len); //Write関数の宣言
+        void Read(uint8_t register, uint8_t* rx_buffer, uint8_t len); //Read関数の宣言
+        void Write(uint8_t register, uint8_t* tx_buffer, uint8_t len); //Write関数の宣言
 }
 
 endif;</code></pre>
@@ -161,7 +160,7 @@ endif;</code></pre>
 
         <p>コンストラクタとRead、Write関数はこちらで書いておきました</p>
 
-        <p>WIAのコードを参考にして、電源モード設定、データ取得の関数は自分で実装してみよう</p>
+        <p><strong>WIA()のコードを参考にして、電源モード設定、データ取得の関数を自分で実装してみよう</strong></p>
 
         <pre><code class="language-cpp">#include "ICM45686.hpp"
 
@@ -241,7 +240,7 @@ void init(){
 
     wia = icm.WIA(); //WIAを取得
 
-    //WIAが正しいか確認のため送信する(0xE9 = 233)
+    //WIAが正しいか確認のため送信する(成功なら0、失敗なら1が送信される)
     HAL_UART_Transmit(&huart2, &wia, 1, 1000);
 
     //電源モードを設定する関数を呼び出す

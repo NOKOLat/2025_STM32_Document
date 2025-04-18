@@ -77,9 +77,9 @@
 <body>
     <main>
         <h3>STM32資料 応用編3</h3>
-        <h1>SPI通信でセンサーのデータを読み取ってみよう</h1>
+        <h1>SPI通信でセンサーと通信をしてみよう</h1>
 
-        <p>前回はI2C通信を使ったので同じ操作をSPI通信を使ってやってみよう</p>
+        <p>今回は、SPI通信という方法を使ってICM45686のWIAレジスタを読み取ってみよう</p>
 
         <h2>今回やること</h2>
 
@@ -255,66 +255,17 @@
         
         <h2>プログラム</h2>
 
-        <p>I2Cと似た書き込みと読み取りの関数が用意されているので、まとめて紹介する</p>
-
-        <h3>SPI通信で書き込みをする関数</h3>
-
-        <p>引数が少なくレジスタアドレスの引数がないが、後で説明するので気にしないで大丈夫!</p>
-    
-        <h3>関数</h3>
-        <pre><code class="language-cpp">HAL_SPI_Transmit(&hspix, TxBuffer, Size, TimeOut);</code></pre>
-
-        <div class="note">
-            <h3>この関数の引数</h3>
-
-            <p>送信データはポインタを送る必要がある</p>
-            <p>SPI通信の場合は後述する理由のため、送信データはほとんど配列を渡すことになる</p>
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>引数名</th>
-                        <th>変数型</th>
-                        <th>内容</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <th>&hi2cx</th>
-                        <th>SPI_HandleTypeDef*</th>
-                        <th>SPIのポインタ（xはSPIの番号）</th>
-                    </tr>
-                    <tr>
-                        <th>TxBuffer</th>
-                        <th>uint8_t*</th>
-                        <th>送信データ（ポインタ）</th>
-                    </tr>
-                    <tr>
-                        <th>Size</th>
-                        <th>uint16_t</th>
-                        <th>送信データサイズ</th>
-                    </tr>
-                    <tr>
-                        <th>TimeOut</th>
-                        <th>uint32_t</th>
-                        <th>最大実行時間(超えたら諦める)</th>
-                    </tr>
-                </tbody>
-            </table>
-        </div>   
+        <p>SPI通信にも読み取りの関数があるので、紹介する</p>
 
         <h3>SPI通信で読み取りをする関数</h3>
 
-        <p>SPI通信では書き込みと読み取りを同時に行うことができるため、このような関数名になっている</p>
+        <p>SPI通信では書き込み（レジスタアドレスの送信）と読み取りを同時に行うことができるため、このような関数名になっている</p>
     
         <h3>関数</h3>
         <pre><code class="language-cpp">HAL_SPI_TransmitReceive(&hspix, TxBuffer, RxBuffer, Size, TimeOut);</code></pre>
 
         <div class="note">
             <h3>この関数の引数</h3>
-
-            <p>送信データはポインタを送る必要がある</p>
-            <p>SPI通信の場合は後述する理由のため、送信データはほとんど配列を渡すことになる</p>
 
             <table>
                 <thead>
@@ -358,80 +309,68 @@
 
         <p>詳しいことまで知る必要はないが、例を出しつつ簡単に紹介する</p>
 
-        <h3>書き込み</h3>
-
-        <p>SPI通信での書き込みでは、レジスタアドレス→書き込みたいデータを連続で送信する</p>
-
-        <p>この前後、デバイス選択をするためにCSピンにつながっているGPIOを操作している</p>
-        
-        <pre><code class="language-cpp">uint8_t TxBuffer[2] = {};
-            
-TxBuffer[0] = REGISTER_ADDR; //書き込みたいレジスタのアドレス
-TxBuffer[1] = 0x15; //書き込みたい値
-
-HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
-        
-HAL_SPI_Transmit(&hspi1, TxBuffer, 2, 1000);
-        
-HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);</code></pre>
-
-        <h3>読み取り</h3>
+        <h3>読み取りのやりかた</h3>
 
         <p>SPI通信での読み取りでは、まずレジスタアドレスの8桁目を1にする</p>
 
-        <p>これはレジスタアドレスの後の | 0x80;という操作で実装している</p>
+        <p>これはレジスタアドレスの後の<strong>| 0x80;</strong>という操作で実装している</p>
 
         <p>その後RxBufferの2番目の要素に読み取った値が入る仕組みになっている</p>
 
-<pre><code class="language-cpp">uint8_t TxBuffer[2] = {};
-uint8_t RxBuffer[2] = {};
+<pre><code class="language-cpp">uint8_t tx_buffer[2] = {};
+uint8_t rx_buffer[2] = {};
 
-TxTmp[0] = REGISTER_ADDR | 0x80;//読み取りたいレジスタのアドレス
-TxTmp[1] = 0x00;
+tx_buffer[0] = REGISTER_ADDR | 0x80;//読み取りたいレジスタのアドレス
+tx_buffer[1] = 0x00;//からのデータ
 
+//CSピンをLOWにする(通信開始)
 HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
 
-HAL_SPI_TransmitReceive(&hspi1, TxBuffer, RxBuffer, 2, 1000);
+//アドレスの送信とデータの受信
+HAL_SPI_TransmitReceive(&hspi1, tx_buffer, rx_buffer, 2, 1000);
 
+//CSピンをHIGHにする(通信終了)
 HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
 
+//受信したデータを取得(2番目の要素に入る)
 uint8_t ReadValue = RxBuffer[2]</code></pre>
 
-        <details>
-            <summary>複数バイトの読み取りについて</summary>
-            <br>
-            <p>紹介したコードでは1バイトの受信しかできない</p>
-            <p>基本は繰り返すことで実装すれば問題ないが、関数などにまとめたい場合はfor文などを使って書くことになる</p>
-            <p>このコードでは連続する複数のレジスタを読み取る例である（センサーデータを読み取るときに使いそう）</p>
-            
-            <p>色々考えてみるともっといい書き方がありそうなので、見つけたら教えてくれるとうれしい</p>
+        <h3>読み取り関数</h3>
 
-            <pre><code class="language-cpp">uint8_t RxBuffer[2] = {};
-uint8_t TxBuffer[2] = {};
-uint8_t Data[12] = {};
-            
-for(uint8_t i=0; i<12; i++){
-            
-    TxBuffer[0] = 0x00 | 0x80; //レジスタアドレス
-    TxBuffer[1] = 0x00;
-            
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+        <p>このような長いかつ、繰り返すプログラムは関数にすると使いやすい</p>
 
-    HAL_SPI_TransmitReceive(&hspi1, TxBuffer, RxBuffer, 2, 1000);
-                    
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+        <p>複数バイトの読み取りのために、レジスタアドレスと受信したデータを格納する配列の要素のインクリメントをしている</p>
+
+        <pre><code class="language-cpp">Read(uint8_t reg_addr, uint8_t *data, uint8_t len){
+
+    uint8_t tx_buffer[2] = {};
+    uint8_t rx_buffer[2] = {};
+    
+    //読み取るレジスタアドレスの数だけ繰り返す
+    for(uint8_t i=0; i < len; i++){
+
+        tx_buffer[0] = (REGISTER_ADDR + i) | 0x80;//読み取りたいレジスタのアドレス
+        tx_buffer[1] = 0x00;//からのデータ
             
-    Data[i] = RxBuffer[1];
-}</code></pre> 
-
-        </details>
-
+        //CSピンをLOWにする(通信開始)
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+            
+        //アドレスの送信とデータの受信
+        HAL_SPI_TransmitReceive(&hspi1, tx_buffer, rx_buffer, 2, 1000);
+            
+        //CSピンをHIGHにする(通信終了)
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+            
+        //受信したデータを取得(2番目の要素に入る)
+        uint8_t data[i] = RxBuffer[2]
+    }
+}</code></pre>
 
         <h2>サンプルコード</h2>
         
-        <p>実際に通信するためのコードを書いてみよう</p>
+        <p>実際にWIAをするためのコードを書いてみよう</p>
 
-        <p>I2Cと違い通信の操作にたくさんのプログラムが必要なので、ReadとWriteの関数を作成してみるのもいいかも？</p>
+        <p>上で紹介した読み取りのコードをvoid init();の前にコピペして、この関数とusartを使ってWIAの値をPCに送ってみよう</p>
 
         <div class="note">
             <h3>使用するレジスタ</h3>
@@ -446,18 +385,6 @@ for(uint8_t i=0; i<12; i++){
                 </thead>
                 <tbody>
                     <tr>
-                        <th>ACEEL_DATA_X1_UI</th>
-                        <th>0x00</th>
-                        <th>センターデータ(ここから12byteにAccelとGyroのデータがある）</th>
-                        <th>読み取り専用</th>
-                    </tr>
-                    <tr>
-                        <th>PWR_MGMT</th>
-                        <th>0x10</th>
-                        <th>センサーの電源設定</th>
-                        <th>0x0f（LowNoizeMode)</th>
-                    </tr>
-                    <tr>
                         <th>WIA</th>
                         <th>0x72</th>
                         <th>通信チェック用</th>
@@ -467,12 +394,9 @@ for(uint8_t i=0; i<12; i++){
             </table>
         </div>
 
-        <p><strong>今回は普通に難しいので、わからなくて当然に近いかもしれない、、</strong></p>
-        <p><strong>いつも以上に気軽に質問をしてね！</strong></p>
-
         <h2>終わりに</h2>
 
-        <p>今回は実際にセンサーデータを取得してみました</p>
+        <p>次回はSPI通信でセンサーデータを読み取ってみよう</p>
 
 
         <h2>リンク</h2>
