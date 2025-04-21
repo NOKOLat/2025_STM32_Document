@@ -131,6 +131,8 @@
         <P>データを分解するコードは少し難しいので、事前に用意したものを使ってね</p>
 
         <h2>サンプルコード</h2>
+
+        <p>値が0になってしまったときは、黒いボタン（リセットボタン）を何回か押してみてね</p>
     
         <pre><code class="language-cpp">#include "wrapper.hpp"
 #include "usart.h"
@@ -141,8 +143,6 @@ uint16_t SBUSData[10] = {};
 
 void SBUS_decode();
 
-std::string str;
-
 void init(){
 
     //割り込みの開始
@@ -151,18 +151,19 @@ void init(){
 
 void loop(){
 
-    //受信したデータをPCに送信
-    for(int i = 0; i < 10; i++){
+    std::string str;
 
-        str += std::to_string(SBUSData[i]) + " ";
+    //受信したデータをPCに送信
+    for(int i = 0; i < 6; i++){
+
+        str = std::to_string(SBUSData[i]) + " ";
+        HAL_UART_Transmit(&huart2, (uint8_t *)str.c_str(),str.length(),100);
     }
 
     //改行を追加
-    str += "\n";
-    
+    str = "\n";
     //データを送信
 	HAL_UART_Transmit(&huart2, (uint8_t *)str.c_str(),str.length(),100);
-
 }
 
 //データを受信したら呼び出される
