@@ -119,6 +119,7 @@
 
         <p>この関数は、メンバー関数が使うだけなのでprivateで宣言している</p>
 
+
         <pre><code class="language-cpp">#ifndef INC_ICM45686_HPP_
 #define INC_ICM45686_HPP_
 
@@ -159,6 +160,16 @@ endif;</code></pre>
         <h2>ICM45686.cpp</h2>
 
         <p>コンストラクタとRead、Write関数はこちらで書いておきました</p>
+
+        <p>クラスで定義した関数を実装するときには、(クラス名)::(関数名)と書く</p>
+
+        <div class="note">
+
+            <h3>やったこと</h3>
+
+            <li>ICM45686.hppのインクルード</li>
+            <li>ICM45686.hppで定義した関数の実装</li>
+        </div>
 
         <p><strong>WIA()のコードを参考にして、電源モード設定、データ取得の関数を自分で実装してみよう</strong></p>
 
@@ -221,7 +232,12 @@ void ICM45686::GetSensorData(int16_t accel_data[3], int16_t gyro_data[3]){
 
         <p>作成したクラスを使って実際にICM45686と通信してみよう</p>
 
-        <p>実際にコードを見てみると、明らかに簡潔で何をしているかが分かりやすくなった</p>
+        <p>wrapper.cppからは関数を呼び出すので、少し実装を変更しても</p>
+
+        <p>wrapper.cppはそのまま使うことができる</p>
+
+
+        <p>実際にコードを見てみると、簡潔で何をしているかが分かりやすくなった</p>
 
         <p>これならあまりコードを書いたことがない人も簡単に使ってもらうことができる</p>
 
@@ -259,8 +275,7 @@ void loop(){
 
     //HAL_UART_Transmit(&huart2, (uint8_t*)"Gyro Data: ", 12, 1000);
     //HAL_UART_Transmit(&huart2, (uint8_t*)&gyro_data, sizeof(gyro_data), 1000);
-}
-        </code></pre>
+}</code></pre>
 
 
         <h2>リンク</h2>
