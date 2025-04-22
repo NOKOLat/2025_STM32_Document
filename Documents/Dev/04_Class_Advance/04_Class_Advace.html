@@ -139,7 +139,7 @@ uint8_t ICM45686::WIA(){
             
     uint8_t read_value = 0; //WIAの値を格納する変数
             
-    //0x72 という値のみが急に出てくるコードになる 
+    //WIAレジスタであることがわかりやすい 
     Read((uint8_t)ICM45686::REGISTER::WIA, &read_value, 1);
             
     //WIAの値が正しいか確認する
@@ -199,8 +199,8 @@ class ICM45686_I2C: public ICM45686{
         <pre><code class="language-cpp">//通信用の関数の定義
 
 //書き込みと読み取りの関数
-void Read(uint8_tregister, uint8_t* rx_buffer, uint8_t len); //Read関数の宣言
-void Write(uint8_t register, uint8_t* tx_buffer, uint8_t len); //Write関数の宣言</code></pre>
+void Read(uint8_t reg, uint8_t* rx_buffer, uint8_t len); //Read関数の宣言
+void Write(uint8_t reg, uint8_t* tx_buffer, uint8_t len); //Write関数の宣言</code></pre>
 
         <h3>仮想環境の関数宣言</h3>
 
@@ -210,8 +210,8 @@ void Write(uint8_t register, uint8_t* tx_buffer, uint8_t len); //Write関数の�
         <pre><code class="language-cpp">//通信用の関数の定義
 
 //書き込みと読み取りの関数
-virtual void Read(uint8_t register, uint8_t* rx_buffer, uint8_t len) = 0; //Read関数の宣言
-virtual void Write(uint8_t register, uint8_t* tx_buffer, uint8_t len) = 0; //Write関数の宣言</code></pre>
+virtual void Read(uint8_t reg, uint8_t* rx_buffer, uint8_t len) = 0; //Read関数の宣言
+virtual void Write(uint8_t reg, uint8_t* tx_buffer, uint8_t len) = 0; //Write関数の宣言</code></pre>
 
         <p>子クラスで実装するときは、これと同じ名前の関数を定義し、実装すると自動で上書き（オーバーライド）してくれる</p>
         <p>この時、引数は同じでなくてはいけない</p>

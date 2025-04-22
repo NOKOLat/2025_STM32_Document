@@ -151,8 +151,8 @@ class ICM45686{
         uint8_t I2C_ADDR = 0b1101000 << 1; //ICM45686のI2Cアドレス
 
         //書き込みと読み取りの関数
-        void Read(uint8_t register, uint8_t* rx_buffer, uint8_t len); //Read関数の宣言
-        void Write(uint8_t register, uint8_t* tx_buffer, uint8_t len); //Write関数の宣言
+        void Read(uint8_t reg, uint8_t* rx_buffer, uint8_t len); //Read関数の宣言
+        void Write(uint8_t reg, uint8_t* tx_buffer, uint8_t len); //Write関数の宣言
 }
 
 endif;</code></pre>
@@ -183,17 +183,17 @@ ICM45686::ICM45686(I2C_HandleTypeDef* use_i2c_pin){
 }
 
 //書き込みの関数
-void ICM45686::Write(uint8_t register, uint8_t* tx_buffer, uint8_t len){
+void ICM45686::Write(uint8_t reg, uint8_t* tx_buffer, uint8_t len){
 
     //I2Cの関数を使って、引数で渡されたレジスタにデータを書き込む
-    HAL_I2C_Mem_Write(i2c_pin, I2C_ADDR, register, 1, tx_buffer, len, 1);
+    HAL_I2C_Mem_Write(i2c_pin, I2C_ADDR, reg, 1, tx_buffer, len, 1);
 }
 
 //読み取りの関数
-void ICM45686::Read(uint8_t register, uint8_t* rx_buffer, uint8_t len){
+void ICM45686::Read(uint8_t reg, uint8_t* rx_buffer, uint8_t len){
 
     //I2Cの関数を使って、引数で渡されたレジスタからデータを読み取る
-    HAL_I2C_Mem_Read(i2c_pin, I2C_ADDR, register, 1, rx_buffer, len, 1);
+    HAL_I2C_Mem_Read(i2c_pin, I2C_ADDR, reg, 1, rx_buffer, len, 1);
 }
 
 //WIAを取得する関数
