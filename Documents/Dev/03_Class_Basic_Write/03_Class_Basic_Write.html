@@ -246,7 +246,7 @@ void ICM45686::GetSensorData(int16_t accel_data[3], int16_t gyro_data[3]){
 #include "i2c.h"
 #include "usart.h"
 
-ICM45686 icm45686(&hi2c1); //ICM45686のインスタンスを作成
+ICM45686 icm(&hi2c1); //ICM45686のインスタンスを作成
 int16_t accel_data[3]; //加速度データを格納する変数
 int16_t gyro_data[3]; //ジャイロデータを格納する変数[
 
