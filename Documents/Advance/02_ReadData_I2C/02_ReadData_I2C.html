@@ -170,6 +170,10 @@
         <p>前回紹介した受信のコードと合わせるとこのように書くことができる（引数の変数を定義して使ってね）</p>
 
         <pre><code class="language-cpp">//センサーからデータを読み取り
+
+//受信データの配列
+uint8_t RawData[12] = {};
+
 HAL_I2C_Mem_Read(&hi2c1, I2CADDR, ACEEL_DATA_X1_UI, 1, RawData, 12, 1000);
         
 //取得データの処理
