@@ -353,13 +353,13 @@ uint8_t ReadValue = RxBuffer[2]</code></pre>
         tx_buffer[1] = 0x00;//からのデータ
             
         //CSピンをLOWにする(通信開始)
-        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET);
             
         //アドレスの送信とデータの受信
         HAL_SPI_TransmitReceive(&hspi1, tx_buffer, rx_buffer, 2, 1000);
             
         //CSピンをHIGHにする(通信終了)
-        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);
             
         //受信したデータを取得(2番目の要素に入る)
         uint8_t data[i] = RxBuffer[2]
