@@ -160,11 +160,11 @@
 tx_buffer[0] = REGISTER_ADDR; //書き込みたいレジスタのアドレス
 tx_buffer[1] = 0x15; //書き込みたい値
 
-HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_RESET);
         
 HAL_SPI_Transmit(&hspi1, tx_buffer, 2, 1000);
         
-HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);</code></pre>
+HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6, GPIO_PIN_SET);</code></pre>
 
         <h3>書き込みの関数</h3>
 
