@@ -6,26 +6,34 @@
 
 ## リポジトリの構造について
 
-このリポジトリでは、Documents/講座の種類/講座名/htmlやpngファイル
+- 目次のページ以外はDocument/講座種類/タイトル/html・pngファイル、という階層にしてあります
 
-という階層を作っています
+- 追加したいときは、適切な講座種類のフォルダ直下に講座のフォルダを作成してください
 
-### ドキュメントの追加
+### ファイル構造
 
-導入編に新しいドキュメントを追加したい場合は
+- Documents
+  - Setup
+    - 01_install
+      - 01_install.html
+      - STM32.png
+      - TeraTerm.png
+  - Basic
+  - Advance
+  - Dev
+  - Task
+  - Supplement
+  - Test
+  - Format.css
 
-Documents/Setup/03_Name/03_Name.html のようにhtmlファイルを作成してください
+- index.html
+- STM32.png
+- README.md
 
-画像を入れたい場合は03_Name/Name.pngのように追加し、htmlで参照してください
 
-### ドキュメントの修正
+## ドキュメントの修正について
 
-基本的にissueに書いてもらえれば対応します
-
-個人で対応したい場合は、ファイル階層を参考に該当箇所を見つけて
-
-htmlファイルやpngファイルの修正や差し替えを行ってください
-
+- GitHubのIssueに投げてくれるとそのうち対応します
 
 ## 保守管理関係のお話
 
